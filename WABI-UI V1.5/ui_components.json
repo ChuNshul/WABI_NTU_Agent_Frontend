@@ -1,0 +1,230 @@
+{
+  "text": {
+    "description": "General text block with optional markdown and tone.",
+    "props": {
+      "content": "string",
+      "markdown": "boolean (default true)",
+      "tone": "string (neutral|positive|warning|error)",
+      "size": "string (sm|md|lg)"
+    }
+  },
+  "markdown": {
+    "description": "Markdown content renderer.",
+    "props": {
+      "content": "string"
+    }
+  },
+  "key_value_list": {
+    "description": "Structured key-value pairs for facts and summaries.",
+    "props": {
+      "title": "string",
+      "items": "list of objects: [{'label': 'string', 'value': 'string', 'highlight': 'boolean', 'icon': 'string'}]",
+      "columns": "number (1|2)"
+    }
+  },
+  "highlight_box": {
+    "description": "Emphasis box for alerts and callouts.",
+    "props": {
+      "content": "string",
+      "variant": "string (success|warning|info|error)",
+      "icon": "string",
+      "dismissible": "boolean"
+    }
+  },
+  "alert": {
+    "description": "Inline alert for status messages.",
+    "props": {
+      "title": "string",
+      "content": "string",
+      "variant": "string (success|warning|info|error)"
+    }
+  },
+  "carousel": {
+    "description": "Horizontal card list for items or recipes.",
+    "props": {
+      "title": "string",
+      "items": "list of objects: [{'title': 'string', 'subtitle': 'string', 'image_url': 'string', 'details': 'object'}]",
+      "autoplay": "boolean",
+      "interval_ms": "number"
+    }
+  },
+  "image_display": {
+    "description": "Single image with optional caption.",
+    "props": {
+      "image_url": "string",
+      "caption": "string",
+      "rounded": "boolean",
+      "width": "number",
+      "height": "number"
+    }
+  },
+  "place_table": {
+    "description": "List table.",
+    "props": {
+      "title": "string",
+      "items": "list of restaurant objects",
+      "sortable_fields": "list of strings"
+    }
+  },
+  "table_advanced": {
+    "description": "Advanced table with defined columns and rows.",
+    "props": {
+      "title": "string",
+      "columns": "list of strings",
+      "rows": "list of lists",
+      "sortable": "boolean",
+      "footnote": "string"
+    }
+  },
+  "custom_html": {
+    "description": "Custom HTML component for advanced bespoke layouts.",
+    "props": {
+      "html_content": "string",
+      "description": "string"
+    }
+  },
+  "button_group": {
+    "description": "A group of actionable buttons for user choices.",
+    "props": {
+      "title": "string",
+      "buttons": "list of objects: [{'label': 'string', 'value': 'string', 'variant': 'string (primary|secondary|outline)'}]"
+    }
+  },
+  "progress_bar": {
+    "description": "Progress indicator for goals and metrics.",
+    "props": {
+      "label": "string",
+      "value": "number",
+      "max": "number",
+      "variant": "string (primary|success|warning|error)",
+      "show_percent": "boolean"
+    }
+  },
+  "comparison_table": {
+    "description": "Side-by-side comparison table.",
+    "props": {
+      "title": "string",
+      "columns": "list of strings",
+      "rows": "list of lists",
+      "footnote": "string",
+      "sort_by": "string"
+    }
+  },
+  "statistic_grid": {
+    "description": "Compact grid of key metrics.",
+    "props": {
+      "title": "string",
+      "items": "list of objects: [{'label': 'string', 'value': 'string|number', 'unit': 'string', 'trend': 'string (+|-|=)', 'variant': 'string'}]",
+      "columns": "number"
+    }
+  },
+  "inline_stat": {
+    "description": "Single inline statistic with label and value.",
+    "props": {
+      "label": "string",
+      "value": "string|number",
+      "unit": "string",
+      "trend": "string (+|-|=)"
+    }
+  },
+  "tag_list": {
+    "description": "Badge list of tags and attributes.",
+    "props": {
+      "title": "string",
+      "tags": "list of strings",
+      "selectable": "boolean"
+    }
+  },
+  "steps_list": {
+    "description": "Ordered steps for recipes or actions.",
+    "props": {
+      "title": "string",
+      "steps": "list of strings",
+      "numbered": "boolean",
+      "icons": "list of strings"
+    }
+  },
+  "tabs": {
+    "description": "Tabbed content sections.",
+    "props": {
+      "title": "string",
+      "tabs": "list of objects: [{'label':'string','content':'string'}]"
+    }
+  },
+  "collapsible_section": {
+    "description": "Content block that can be expanded/collapsed.",
+    "props": {
+      "title": "string",
+      "content": "string",
+      "open": "boolean"
+    }
+  },
+  "card_list": {
+    "description": "Vertical list of cards.",
+    "props": {
+      "title": "string",
+      "items": "list of objects: [{'title':'string','subtitle':'string','image_url':'string','badge':'string','content':'string'}]"
+    }
+  },
+  "gallery_grid": {
+    "description": "Grid gallery of images.",
+    "props": {
+      "title": "string",
+      "images": "list of objects: [{'src':'string','caption':'string'}]",
+      "columns": "number"
+    }
+  },
+  "bar_chart": {
+    "description": "Bar chart for comparing values.",
+    "props": {
+      "title": "string",
+      "items": "list of objects: [{'label': 'string', 'value': 'number'}]",
+      "max": "number",
+      "unit": "string",
+      "orientation": "string (horizontal|vertical)",
+      "colors": "list of strings"
+    }
+  },
+  "pie_chart": {
+    "description": "Pie chart for proportions.",
+    "props": {
+      "title": "string",
+      "items": "list of objects: [{'label': 'string', 'value': 'number'}]",
+      "unit": "string",
+      "donut": "boolean",
+      "colors": "list of strings"
+    }
+  },
+  "line_chart": {
+    "description": "Line chart for trends over ordered categories or time.",
+    "props": {
+      "title": "string",
+      "points": "list of numbers",
+      "labels": "list of strings",
+      "unit": "string",
+      "color": "string"
+    }
+  },
+  "radar_chart": {
+    "description": "Radar chart for comparing multiple axes of a single item.",
+    "props": {
+      "title": "string",
+      "axes": "list of strings",
+      "values": "list of numbers",
+      "max": "number",
+      "color": "string"
+    }
+  },
+  "divider": {
+    "description": "Visual divider between sections.",
+    "props": {
+      "spacing": "number"
+    }
+  },
+  "spacer": {
+    "description": "Empty space with given height.",
+    "props": {
+      "height": "number"
+    }
+  }
+}
