@@ -235,6 +235,17 @@
             
             /* Hide footer text */
             .sidebar > div:last-child { display: none; }
+
+            /* Tablet: arrange input and selectors for better layout */
+            .input-box { flex-wrap: wrap; align-items: flex-start; gap: 10px; }
+            textarea { order: 2; flex: 1 1 100%; }
+            #intentSelectorContainer,
+            #upstreamSelectorContainer,
+            #modelSelectorContainer { order: 3; flex: 1 1 calc(33.333% - 8px); }
+            #intentSelectorBtn,
+            #upstreamSelectorBtn,
+            #modelSelectorBtn { width: 100%; justify-content: center; }
+            #sendBtn { order: 4; }
         }
 
         /* Mobile (< 640px): Bottom Navigation */
@@ -307,6 +318,17 @@
                 padding: 10px;
                 padding-bottom: 74px; /* Ensure input isn't hidden by bottom nav (64px + 10px) */
             }
+
+            /* Mobile: stack input and make selectors a second row */
+            .input-box { flex-wrap: wrap; align-items: stretch; gap: 8px; }
+            textarea { order: 2; flex: 1 1 100%; }
+            #intentSelectorContainer,
+            #upstreamSelectorContainer,
+            #modelSelectorContainer { order: 3; flex: 1 1 calc(33.333% - 8px); }
+            #intentSelectorBtn,
+            #upstreamSelectorBtn,
+            #modelSelectorBtn { width: 100%; justify-content: center; }
+            #sendBtn { order: 4; }
         }
     </style>
 </head>
@@ -336,7 +358,7 @@
             </div>
             
             <div style="margin-top:auto; font-size:12px; color:rgba(255,255,255,0.5);">
-                v1.2 (Adaptive)<br>Project Wabi-C
+                v1.5<br>Project Wabi-C
             </div>
         </div>
 
@@ -344,9 +366,6 @@
         <div class="main-content">
             <div class="header">
                 <div class="flex items-center gap-3">
-                    <button class="md:hidden text-gray-500 hover:text-blue-600 transition" onclick="toggleSidebar()">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
-                    </button>
                     <div class="header-title">Food Recognition & Recommendation</div>
                 </div>
                 <div class="flex items-center gap-4">
@@ -454,7 +473,7 @@
                     <h3 class="text-lg font-semibold mb-4 border-b pb-2" style="color: var(--text-color); border-color: var(--border-color);">About</h3>
                     <div class="p-4 rounded-xl border" style="background: var(--card-bg); border-color: var(--border-color);">
                         <p class="mb-2"><strong>WABI Agent Web Demo</strong></p>
-                        <p class="text-sm opacity-70">Version: 1.2 (Adaptive UI)</p>
+                        <p class="text-sm opacity-70">Version: 1.5</p>
                         <p class="text-sm opacity-70">Powered by Linhan Song</p>
                         <p class="text-sm opacity-70 mt-2 border-t pt-2" style="border-color: var(--border-color);">Detected Device: <span id="debug-device" class="font-mono font-bold">Unknown</span></p>
                     </div>
