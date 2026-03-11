@@ -1,0 +1,209 @@
+{
+  "text": {
+    "description": "Narrative text card for summaries, agent responses, or explanations.",
+    "when": "Always available as fallback; prefer richer components when structured data exists.",
+    "props": {
+      "title": "string (optional)",
+      "content": "string",
+      "tone": "string — neutral | positive | warning | error"
+    }
+  },
+
+  "highlight_box": {
+    "description": "Prominent coloured callout for critical status messages or safety warnings.",
+    "when": "safety_passed=false → variant=error; intent=exit → variant=success; any top-level alert.",
+    "props": {
+      "content": "string",
+      "variant": "string — success | warning | info | error"
+    }
+  },
+
+  "statistic_grid": {
+    "description": "Compact grid of 2–4 headline numbers shown at a glance.",
+    "when": "recognition: total calories, protein, fat, carbs from macro_totals. recommendation: restaurant count, avg rating.",
+    "props": {
+      "title": "string (optional)",
+      "columns": "number — 2 or 3",
+      "items": "[{label, value, unit, variant}] — variant: default|success|warning|error"
+    }
+  },
+
+  "key_value_list": {
+    "description": "Labelled rows of facts for detailed breakdowns.",
+    "when": "Per-food nutrient detail; per-restaurant meta (address, cuisine, hours).",
+    "props": {
+      "title": "string (optional)",
+      "items": "[{label, value, highlight}] — highlight=true bolds the row"
+    }
+  },
+
+  "bar_chart": {
+    "description": "Horizontal bar chart comparing values across items.",
+    "when": "Calorie comparison across detected foods; dish calorie comparison across restaurants.",
+    "props": {
+      "title": "string (optional)",
+      "unit": "string — e.g. 'kcal'",
+      "items": "[{label, value}] — up to 10 items",
+      "colors": "[string] (optional) — CSS colour per bar; auto-assigned if omitted"
+    }
+  },
+
+  "macro_chart": {
+    "description": "SVG donut chart + bar breakdown for protein / carb / fat macronutrients.",
+    "when": "recognition intent and nutrition_facts has protein_g, carbs_g, fat_g data.",
+    "props": {
+      "title": "string (optional)",
+      "protein_g": "number",
+      "carb_g": "number",
+      "fat_g": "number",
+      "total_kcal": "number (optional)"
+    }
+  },
+
+  "calorie_ring": {
+    "description": "Full-circle SVG ring showing calories consumed vs daily target. Shows kcal remaining in centre.",
+    "when": "recognition or meal-tracking intent when a calorie target or consumed total is known.",
+    "props": {
+      "title": "string (optional)",
+      "consumed": "number — kcal eaten",
+      "target": "number — daily calorie goal (default 2000)",
+      "breakdown": "[{label, value, color}] (optional) — per-meal contribution bars"
+    }
+  },
+
+  "health_score_card": {
+    "description": "SVG semicircle gauge showing an overall health score 0–100 with letter grade and optional dimension breakdown bars.",
+    "when": "recognition intent when an overall meal/food healthiness score can be derived. Score = 100 × (healthy_foods / total_foods) if no explicit score.",
+    "props": {
+      "title": "string (optional)",
+      "score": "number — 0 to 100",
+      "dimensions": "[{label, value, max, variant}] (optional) — e.g. Sugar Level: 70/100 warning"
+    }
+  },
+
+  "nutrient_gauge": {
+    "description": "One or more mini SVG semicircle gauges showing a nutrient value vs its daily limit. Colour auto-sets: green < 60%, amber 60–80%, red ≥ 80%.",
+    "when": "recognition intent to highlight risky nutrients: sodium, sugar, saturated fat. Use gauges list for multiple at once.",
+    "props": {
+      "title": "string (optional)",
+      "gauges": "[{label, value, limit, unit, variant}] — variant overrides auto-colour",
+      "label": "string (single gauge mode — use only if gauges is absent)",
+      "value": "number (single gauge mode)",
+      "limit": "number (single gauge mode)",
+      "unit": "string (single gauge mode)"
+    }
+  },
+
+  "nutrition_label": {
+    "description": "FDA/HPB-style Nutrition Facts panel for one food item with % Daily Values.",
+    "when": "recognition intent with a single dominant food, or when user explicitly asks for label-style breakdown.",
+    "props": {
+      "title": "string (optional)",
+      "name": "string — food name",
+      "serving_size": "string — e.g. '1 bowl (300g)'",
+      "calories": "number",
+      "fat_g": "number",
+      "sat_fat_g": "number",
+      "sodium_mg": "number",
+      "carb_g": "number",
+      "sugar_g": "number",
+      "fiber_g": "number",
+      "protein_g": "number"
+    }
+  },
+
+  "food_health_list": {
+    "description": "Per-food health assessment rows: name, macros, calorie count, health badge, caution reasons.",
+    "when": "recognition intent — one entry per detected food in nutrition_facts.",
+    "props": {
+      "title": "string (optional)",
+      "items": "[{name, calories, is_healthy, reasons, protein_g, fat_g, carb_g}]"
+    }
+  },
+
+  "restaurant_list": {
+    "description": "Rich restaurant cards: name, rating/price/distance chips, cuisine, top dishes with health dots.",
+    "when": "recommendation intent — one card per restaurant in recommended_restaurants.",
+    "props": {
+      "title": "string (optional)",
+      "items": "[{name, rating, price, distance, is_veg, cuisine, dishes:[{name, calories, is_healthy}]}]"
+    }
+  },
+
+  "ranking_list": {
+    "description": "Ranked list with medal badges (🥇🥈🥉) for top 3, numbered for the rest.",
+    "when": "recommendation intent: rank restaurants by rating or healthiest dishes by calorie/health score.",
+    "props": {
+      "title": "string (optional)",
+      "items": "[{name, value, unit, sub, badge_text}] — value is the ranked metric"
+    }
+  },
+
+  "tip_card": {
+    "description": "Styled actionable nutrition tip: large emoji icon, bold title, body text. Tone-aware background colour.",
+    "when": "Append 1–2 personalised tips at end of recognition or recommendation layouts.",
+    "props": {
+      "icon": "string — emoji (e.g. '💧', '🥗', '⚠️')",
+      "title": "string",
+      "content": "string",
+      "tone": "string — positive | caution | warning"
+    }
+  },
+
+  "meal_summary_row": {
+    "description": "Grid of 2–4 meal slots (Breakfast/Lunch/Dinner/Snack) each with icon, name, calories, and mini bar.",
+    "when": "When meal_plans data is available with per-meal calorie breakdown, or to summarise a multi-meal day.",
+    "props": {
+      "title": "string (optional)",
+      "daily_target": "number — total daily kcal goal",
+      "meals": "[{name, icon, calories, color}] — icon is emoji"
+    }
+  },
+
+  "comparison_table": {
+    "description": "Multi-column table comparing nutrients across several foods.",
+    "when": "recognition with ≥3 foods: columns=[Food, Calories, Protein, Fat, Sugar].",
+    "props": {
+      "title": "string (optional)",
+      "columns": "[string]",
+      "rows": "[[string|number]]",
+      "footnote": "string (optional)"
+    }
+  },
+
+  "progress_bar": {
+    "description": "Single progress bar for goal tracking.",
+    "when": "Show calorie intake vs daily goal; sugar vs limit.",
+    "props": {
+      "label": "string",
+      "value": "number",
+      "max": "number",
+      "unit": "string (optional)",
+      "variant": "string — primary | success | warning | error"
+    }
+  },
+
+  "tabs": {
+    "description": "Tabbed sections for multi-day meal plans or categorised info.",
+    "when": "meal_plans with multiple days/categories.",
+    "props": {
+      "title": "string (optional)",
+      "tabs": "[{label, content}]"
+    }
+  },
+
+  "tag_list": {
+    "description": "Pill badges for cuisine types, dietary flags, or food categories.",
+    "when": "Show cuisine tags, vegan/low-sugar flags, or food category labels.",
+    "props": {
+      "title": "string (optional)",
+      "tags": "[string]"
+    }
+  },
+
+  "divider": {
+    "description": "Thin horizontal rule between sections.",
+    "when": "Separate logically distinct blocks in a long layout.",
+    "props": {}
+  }
+}
