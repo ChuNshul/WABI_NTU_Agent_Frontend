@@ -1,0 +1,1969 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UI Node Metrics · LLM评估分析系统</title>
+<!-- 引入字体 -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<!-- 引入 Vue 3、Chart.js 和 PapaParse -->
+<script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
+
+<style>
+  :root {
+    --bg: #090b10;
+    --surface: rgba(17, 21, 32, 0.6);
+    --card: #121622;
+    --border: #232d42;
+    --border-hover: #364463;
+    --accent: #e8c96a;
+    --accent-glow: rgba(232,201,106,0.3);
+    --accent2: #5fb3f5;
+    --accent3: #6cf0c2;
+    --accent4: #f07070;
+    --accent5: #a78bfa;
+    --text: #e2e8f0;
+    --muted: #64748b;
+    --mono: 'Space Mono', monospace;
+    --serif: 'DM Serif Display', serif;
+    --sans: 'Inter', sans-serif;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  
+  body {
+    background: var(--bg); color: var(--text); font-family: var(--sans);
+    min-height: 100vh; overflow-x: hidden;
+  }
+
+  /* 背景网格纹理 */
+  body::after {
+    content:''; position:fixed; inset:0; pointer-events:none; z-index:-1;
+    background-image: linear-gradient(var(--border) 1px, transparent 1px),
+                      linear-gradient(90deg, var(--border) 1px, transparent 1px);
+    background-size: 50px 50px; opacity: 0.2;
+  }
+  #bg-canvas{position:fixed; inset:0; width:100%; height:100%; z-index:0; pointer-events:none;}
+
+  #app { position:relative; z-index:1; max-width:1440px; margin:0 auto; padding:0 2rem 4rem; }
+
+  /* 动画 */
+  .fade-enter-active, .fade-leave-active { transition: opacity 0.4s ease, transform 0.4s ease; }
+  .fade-enter-from, .fade-leave-to { opacity: 0; transform: translateY(10px); }
+  
+  @keyframes pulseGlow {
+    0% { box-shadow: 0 0 0 0 var(--accent-glow); }
+    70% { box-shadow: 0 0 0 10px rgba(232,201,106,0); }
+    100% { box-shadow: 0 0 0 0 rgba(232,201,106,0); }
+  }
+
+  /* Header */
+  header {
+    padding: 3rem 0 2rem; border-bottom: 1px solid var(--border);
+    display:flex; align-items:flex-end; justify-content:space-between; gap:1rem; flex-wrap:wrap;
+  }
+  .header-left h1 {
+    font-family: var(--serif); font-size: clamp(2rem, 3.5vw, 3rem); font-weight: 400; color: #fff; line-height: 1.1;
+  }
+  .header-left h1 em { color: var(--accent); font-style:italic; }
+  .header-left p { margin-top:.5rem; font-size:.85rem; color: var(--muted); font-family: var(--mono); }
+  .header-badge {
+    background: rgba(232,201,106,.1); border: 1px solid rgba(232,201,106,.3);
+    color: var(--accent); font-family: var(--mono); font-size:.7rem; padding:.4rem 1rem; border-radius:4px;
+  }
+
+  /* 上传区 */
+  .upload-container { margin: 4rem auto; max-width: 800px; }
+  .drop-zone {
+    border: 2px dashed var(--border); border-radius: 12px; padding: 4rem 2rem;
+    text-align:center; cursor:pointer; transition: all .3s ease;
+    background: var(--surface); backdrop-filter: blur(10px);
+  }
+  .drop-zone:hover, .drop-zone.drag-over { border-color: var(--accent); background: rgba(232,201,106,.05); }
+  .drop-zone .icon { font-size:3rem; margin-bottom:1rem; color: var(--accent); text-shadow: 0 0 15px var(--accent-glow); }
+  .drop-zone h3 { font-size:1.2rem; font-weight:500; margin-bottom: 0.5rem;}
+  .drop-zone p { font-size:.85rem; color:var(--muted); font-family:var(--mono); }
+  
+  .btn {
+    display:inline-block; margin-top:1.5rem; background:transparent;
+    border:1px solid var(--accent); color:var(--accent); font-family:var(--mono);
+    font-size:.8rem; padding:.6rem 2rem; cursor:pointer; border-radius: 4px;
+    transition: all .2s;
+  }
+  .btn:hover { background:var(--accent); color:#000; box-shadow: 0 0 15px var(--accent-glow); }
+
+  /* 仪表盘工具栏 */
+  .toolbar {
+    display: flex; gap: 1rem; margin: 2rem 0; align-items: center; flex-wrap: wrap;
+    background: var(--surface); padding: 1rem; border-radius: 8px; border: 1px solid var(--border);
+  }
+  .toolbar-label { font-family: var(--mono); font-size: 0.75rem; color: var(--muted); text-transform: uppercase; }
+  .filter-pill {
+    background: var(--card); border: 1px solid var(--border); color: var(--text);
+    padding: 0.4rem 1rem; border-radius: 20px; font-size: 0.8rem; cursor: pointer;
+    font-family: var(--mono); transition: all 0.2s;
+  }
+  .filter-pill:hover { border-color: var(--muted); }
+  .filter-pill.active { background: var(--accent); border-color: var(--accent); color: #000; font-weight: 600; }
+  input.filter-pill[type="datetime-local"] { color: var(--text); }
+  input.filter-pill[type="datetime-local"]::-webkit-calendar-picker-indicator { filter: invert(0.7); }
+
+  /* 选项卡 */
+  .tabs { display:flex; gap:.5rem; margin:1.5rem 0 0.5rem; flex-wrap: wrap; }
+  .tab {
+    background: var(--card); border: 1px solid var(--border); color: var(--text);
+    padding: .5rem .9rem; border-radius: 6px; cursor: pointer; font-family: var(--mono); font-size: .8rem;
+  }
+  .tab:hover { border-color: var(--border-hover); }
+  .tab.active { background: var(--accent); color: #000; border-color: var(--accent); }
+
+  /* 统计卡片 */
+  .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+  .stat-card {
+    background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px;
+    position: relative; overflow: hidden; backdrop-filter: blur(5px);
+  }
+  .stat-card::before {
+    content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%;
+    background: var(--c, var(--accent));
+  }
+  .stat-card .label { font-size:.7rem; font-family:var(--mono); color:var(--muted); text-transform:uppercase; margin-bottom:.5rem; }
+  .stat-card .value { font-family:var(--mono); font-size:1.8rem; font-weight:700; color:var(--c, var(--accent)); }
+  .stat-card .sub { font-size:.75rem; color:var(--muted); margin-top:.5rem; }
+
+  /* 标题与图表容器 */
+  .section-title {
+    display:flex; align-items:center; gap:.8rem; font-family:var(--mono); font-size:.85rem;
+    color:var(--text); margin: 3rem 0 1.5rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border);
+  }
+  .section-title span { color:var(--accent); }
+
+  .chart-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; margin-bottom: 1.5rem; }
+  .chart-grid.single { grid-template-columns: 1fr; }
+  @media(max-width: 900px) { .chart-grid { grid-template-columns: 1fr; } }
+  
+  .chart-panel {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem;
+  }
+  .chart-panel h4 { font-size:.8rem; color:var(--muted); font-family:var(--mono); margin-bottom:1rem; font-weight:400; }
+  .chart-panel h4 b { color:var(--text); font-weight:600; }
+  .chart-wrapper { position:relative; height:280px; width: 100%; }
+  .chart-wrapper.tall { height:320px; }
+
+  /* 数据表格 */
+  .table-panel { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+  .table-toolbar { padding: 1rem 1.5rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+  .table-scroller { width: 100%; overflow-x: auto; max-height: 400px; }
+  .data-table { width: 100%; border-collapse: collapse; text-align: left; }
+  .data-table th {
+    font-family: var(--mono); font-size: .7rem; color: var(--muted); text-transform: uppercase;
+    padding: 1rem 1.5rem; position: sticky; top: 0; background: #121622; z-index: 10;
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+  .th-click { cursor: pointer; }
+  .th-inner { display: inline-flex; align-items: center; gap: .35rem; }
+  .sort-arrow { opacity: .85; }
+  .data-table td {
+    padding: .8rem 1.5rem; font-size: .8rem; border-bottom: 1px solid var(--border);
+    font-family: var(--mono); color: var(--text); white-space: nowrap;
+  }
+  .data-table tbody tr:hover td { background: rgba(255,255,255,0.03); }
+  .tag { background: rgba(95,179,245,.15); color: var(--accent2); padding: .2rem .6rem; border-radius: 4px; font-size: .7rem; }
+  
+  /* 分页控件 */
+  .pagination { display: flex; gap: 0.5rem; align-items: center; }
+  .btn-page { background: var(--card); border: 1px solid var(--border); color: var(--text); padding: 0.3rem 0.8rem; border-radius: 4px; cursor: pointer; }
+  .btn-page:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn-page:not(:disabled):hover { border-color: var(--accent); color: var(--accent); }
+  .thumb { height: 120px; border: 1px solid var(--border); border-radius: 4px; display: block; }
+  .thumb:hover { box-shadow: 0 0 0 1px var(--accent); }
+  .conv-table td { vertical-align: top; }
+  .upstream { white-space: normal; word-break: break-word; }
+  .clamped {
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    line-clamp: 4;
+    box-orient: vertical;
+  }
+  .link-btn { background: transparent; border: none; color: var(--accent2); font-family: var(--mono); font-size: .7rem; cursor: pointer; padding: 0; }
+  .lightbox { position: fixed; inset: 0; background: rgba(0,0,0,.8); display: flex; align-items: center; justify-content: center; z-index: 50; }
+  .lightbox img { max-width: 90vw; max-height: 90vh; border-radius: 6px; border: 1px solid var(--border); }
+
+  /* 热力图 */
+  .heatmap-grid { display: grid; gap: 4px; font-family: var(--mono); font-size: 0.7rem; overflow-x: auto; }
+  .hm-cell { display: flex; align-items: center; justify-content: center; border-radius: 4px; color: #fff; transition: box-shadow 0.2s, background-color 0.2s; cursor: crosshair; }
+  .hm-cell:hover { box-shadow: 0 0 0 1px rgba(255,255,255,0.3); }
+  .hm-label { display: flex; align-items: center; justify-content: center; color: var(--muted); text-align: center; font-size: 0.65rem; padding: 0.5rem; }
+  
+  /* 进度条 (按模型对比) */
+  .model-bar-row { display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; }
+  .model-name { width: 200px; font-size: 0.8rem; font-family: var(--mono); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .bar-bg { flex: 1; height: 8px; background: var(--border); border-radius: 4px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 4px; transition: width 1s cubic-bezier(0.16, 1, 0.3, 1); }
+  .model-val { width: 80px; text-align: right; font-family: var(--mono); font-size: 0.8rem; color: var(--muted); }
+
+</style>
+</head>
+<body>
+
+<canvas id="bg-canvas"></canvas>
+<div id="app">
+  <header>
+    <div class="header-left">
+      <h1>UI Node Metrics<br><em>LLM评估分析系统</em></h1>
+      <p>// Made by Linhan</p>
+    </div>
+    <div class="header-badge">WABI NTU Agent</div>
+  </header>
+
+  <transition name="fade" mode="out-in">
+    <!-- 上传视图 -->
+    <div v-if="!dataLoaded" class="upload-container">
+      <div class="drop-zone" 
+           @dragover.prevent="isDragging = true" 
+           @dragleave.prevent="isDragging = false" 
+           @drop.prevent="handleDrop"
+           :class="{'drag-over': isDragging}"
+           @click="$refs.fileInput.click()">
+        <div class="icon">◈</div>
+        <h3>拖拽 CSV 文件至此处，或点击上传</h3>
+        <p>包含 timestamp, model, tokens, cost, latency 等字段</p>
+        <button class="btn">选择文件</button>
+        <input type="file" ref="fileInput" accept=".csv" style="display:none" @change="handleFileSelect">
+      </div>
+      <div style="text-align:center; margin-top:2rem;">
+      </div>
+    </div>
+
+    <!-- 仪表盘视图 -->
+    <div v-else class="dashboard-container">
+      <!-- 子界面选项卡 -->
+      <div class="tabs">
+        <button class="tab" :class="{active: activeTab==='overview'}" @click="activeTab='overview'">概览</button>
+        <button class="tab" :class="{active: activeTab==='latency'}" @click="activeTab='latency'">延迟分析</button>
+        <button class="tab" :class="{active: activeTab==='tokensCost'}" @click="activeTab='tokensCost'">Token与成本</button>
+        <button class="tab" :class="{active: activeTab==='benchmarks'}" @click="activeTab='benchmarks'">模型对比</button>
+        <button class="tab" :class="{active: activeTab==='renderModes'}" @click="activeTab='renderModes'">渲染模式</button>
+        <button class="tab" :class="{active: activeTab==='explore'}" @click="activeTab='explore'">数据探索</button>
+        <button class="tab" :class="{active: activeTab==='throughput'}" @click="activeTab='throughput'">吞吐与占比</button>
+        <button class="tab" :class="{active: activeTab==='conversations'}" @click="activeTab='conversations'">对话分析</button>
+        <button class="tab" :class="{active: activeTab==='table'}" @click="activeTab='table'">数据表</button>
+      </div>
+
+      <!-- 顶部工具栏 (过滤器) -->
+      <div class="toolbar">
+        <span class="toolbar-label">模型筛选 (Model Filter):</span>
+        <button class="filter-pill" 
+                :class="{ active: selectedModel === 'All' }" 
+                @click="selectedModel = 'All'">
+          全部模型 (All)
+        </button>
+        <button v-for="model in availableModels" :key="model" 
+                class="filter-pill"
+                :class="{ active: selectedModel === model }"
+                @click="selectedModel = model">
+          {{ formatModelName(model) }}
+        </button>
+        <span class="toolbar-label">渲染模式:</span>
+        <button class="filter-pill" :class="{ active: selectedMode === 'All' }" @click="selectedMode = 'All'">All</button>
+        <button class="filter-pill" :class="{ active: selectedMode === 'planner' }" @click="selectedMode = 'planner'">planner</button>
+        <button class="filter-pill" :class="{ active: selectedMode === 'direct' }" @click="selectedMode = 'direct'">direct</button>
+        <span class="toolbar-label">日期范围:</span>
+        <input class="filter-pill" type="datetime-local" v-model="dateStart">
+        <input class="filter-pill" type="datetime-local" v-model="dateEnd">
+        <span class="toolbar-label">延迟(ms):</span>
+        <input class="filter-pill" type="number" placeholder="最小" v-model.number="latencyMin" style="width:100px">
+        <input class="filter-pill" type="number" placeholder="最大" v-model.number="latencyMax" style="width:100px">
+        <input class="filter-pill" type="text" placeholder="搜索模型" v-model="searchQuery" style="min-width:180px">
+        <span class="toolbar-label">每页:</span>
+        <select class="filter-pill" v-model.number="pageSize">
+          <option :value="20">20</option>
+          <option :value="50">50</option>
+          <option :value="100">100</option>
+        </select>
+        <button class="filter-pill" @click="resetFilters">清除筛选</button>
+        <button class="filter-pill" @click="exportCSV">导出CSV</button>
+        <button class="filter-pill" @click="backgroundEnabled=!backgroundEnabled">{{ backgroundEnabled ? '关闭动态背景' : '开启动态背景' }}</button>
+      </div>
+
+      <!-- 概览 -->
+      <div v-if="activeTab==='overview'">
+        <div class="section-title">总体概况 · Summary</div>
+        <div class="stat-grid">
+          <div class="stat-card" style="--c: var(--accent)">
+            <div class="label">Total Requests</div>
+            <div class="value">{{ filteredData.length }}</div>
+            <div class="sub">records matched</div>
+          </div>
+          <div class="stat-card" style="--c: var(--accent2)">
+            <div class="label">Avg Total Latency</div>
+            <div class="value">{{ fmtMs(summary.avgTotalMs) }}</div>
+            <div class="sub">max: {{ fmtMs(summary.maxTotalMs) }}</div>
+          </div>
+          <div class="stat-card" style="--c: var(--accent3)">
+            <div class="label">Avg LLM Latency</div>
+            <div class="value">{{ fmtMs(summary.avgLlmMs) }}</div>
+            <div class="sub">p95: {{ fmtMs(summary.p95LlmMs) }}</div>
+          </div>
+          <div class="stat-card" style="--c: var(--accent4)">
+            <div class="label">Total Tokens</div>
+            <div class="value">{{ formatNumber(summary.totalTokens) }}</div>
+            <div class="sub">avg/req: {{ Math.round(summary.avgTokens) }}</div>
+          </div>
+          <div class="stat-card" style="--c: var(--accent3)">
+            <div class="label">Total Cost</div>
+            <div class="value">{{ fmtCost(summary.totalCost) }}</div>
+            <div class="sub">avg/req: {{ fmtCost(summary.avgCost) }}</div>
+          </div>
+          <div class="stat-card" style="--c: #16a34a">
+            <div class="label">Success Rate</div>
+            <div class="value">{{ (successStats.rate*100).toFixed(1) }}%</div>
+            <div class="sub">succ {{ successStats.success }} / fail {{ successStats.failure }}</div>
+          </div>
+        </div>
+        <!-- 成功/失败与错误原因图表已迁移至“渲染模式”页面 -->
+      </div>
+
+      <!-- 延迟分析 -->
+      <div v-if="activeTab==='latency'">
+        <div class="section-title">延迟分解与分布 · Latency Analysis</div>
+        <div class="chart-grid">
+          <div class="chart-panel">
+            <h4><b>各阶段平均延迟</b> · Average Stage Latency (ms)</h4>
+            <div class="chart-wrapper"><canvas ref="canvasLatencyBar"></canvas></div>
+          </div>
+          <div class="chart-panel">
+            <h4><b>Total Latency 累计分布</b> · CDF</h4>
+            <div class="chart-wrapper"><canvas ref="canvasLatencyHist"></canvas></div>
+          </div>
+        </div>
+        <div class="chart-grid single">
+          <div class="chart-panel">
+            <h4><b>分组平均延迟</b> · Latency Over Time (Grouped)</h4>
+            <div style="margin-bottom:.5rem; display:flex; gap:.5rem; align-items:center;">
+              <span class="toolbar-label">粒度:</span>
+              <select class="filter-pill" v-model="grouping">
+                <option value="minute">分钟</option>
+                <option value="hour">小时</option>
+                <option value="day">天</option>
+              </select>
+            </div>
+            <div class="chart-wrapper tall"><canvas ref="canvasTimeSeries"></canvas></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Token 与成本 -->
+      <div v-if="activeTab==='tokensCost'">
+        <div class="section-title">Token 经济学 · Token Economics</div>
+        <div class="chart-grid">
+          <div class="chart-panel">
+            <h4><b>Token 分布</b> · Prompt vs Completion</h4>
+            <div class="chart-wrapper"><canvas ref="canvasTokenDist"></canvas></div>
+          </div>
+          <div class="chart-panel">
+            <h4><b>Cost 趋势</b> · Cost per Request (USD)</h4>
+            <div class="chart-wrapper"><canvas ref="canvasCost"></canvas></div>
+          </div>
+        </div>
+        <div class="chart-grid">
+          <div class="chart-panel">
+            <h4><b>Cost 累计分布</b> · CDF</h4>
+            <div class="chart-wrapper"><canvas ref="canvasCostHist"></canvas></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 模型对比 -->
+      <div v-if="activeTab==='benchmarks'">
+        <transition name="fade">
+          <div v-if="selectedModel === 'All'">
+            <div class="section-title">模型性能横向对比 · Model Benchmarks</div>
+            <div class="chart-grid single">
+              <div class="chart-panel">
+                <h4><b>平均总延迟对比</b> · Average Total Latency (ms)</h4>
+                <div v-for="(item, index) in modelAverages" :key="item.model" class="model-bar-row">
+                  <div class="model-name" :title="item.model">{{ formatModelName(item.model) }}</div>
+                  <div class="bar-bg">
+                    <div class="bar-fill" :style="{ width: `${(item.avg / maxModelAvg) * 100}%`, backgroundColor: chartColors[index % chartColors.length] }"></div>
+                  </div>
+                  <div class="model-val">{{ fmtMs(item.avg) }}</div>
+                </div>
+              </div>
+            </div>
+            <div class="chart-grid">
+              <div class="chart-panel">
+                <h4><b>平均 Token 消耗</b> · Avg Tokens / Request</h4>
+                <div class="chart-wrapper"><canvas ref="canvasModelTokens"></canvas></div>
+              </div>
+              <div class="chart-panel">
+                <h4><b>平均成本</b> · Avg Cost (mUSD)</h4>
+                <div class="chart-wrapper"><canvas ref="canvasModelCost"></canvas></div>
+              </div>
+            </div>
+            <div class="chart-grid single">
+              <div class="chart-panel">
+                <h4><b>Tokens/s 按模型</b> · Avg TPS by Model</h4>
+                <div class="chart-wrapper"><canvas ref="canvasTokensPerSec"></canvas></div>
+              </div>
+            </div>
+          </div>
+          <div v-else style="color:var(--muted); padding:1rem;">请切换到“全部模型”以查看横向对比。</div>
+        </transition>
+      </div>
+
+      <!-- 渲染模式对比 -->
+      <div v-if="activeTab==='renderModes'">
+        <div class="section-title">渲染模式对比 · Render Mode Benchmarks</div>
+        <div class="chart-grid">
+          <div class="chart-panel">
+            <h4><b>模式占比</b> · Mode Share</h4>
+            <div class="chart-wrapper"><canvas ref="canvasModeShare"></canvas></div>
+          </div>
+          <div class="chart-panel">
+            <h4><b>平均总时延</b> · Avg Total Latency</h4>
+            <div class="chart-wrapper"><canvas ref="canvasModeLatency"></canvas></div>
+          </div>
+        </div>
+        <div class="chart-grid">
+          <div class="chart-panel">
+            <h4><b>平均成本</b> · Avg Cost (USD)</h4>
+            <div class="chart-wrapper"><canvas ref="canvasModeCost"></canvas></div>
+          </div>
+          <div class="chart-panel">
+            <h4><b>平均 Token</b> · Avg Total Tokens</h4>
+            <div class="chart-wrapper"><canvas ref="canvasModeTokens"></canvas></div>
+          </div>
+        </div>
+        <div class="chart-grid">
+          <div class="chart-panel">
+            <h4><b>成功 vs 失败</b> · Success vs Failure</h4>
+            <div class="chart-wrapper"><canvas ref="canvasSuccessPie"></canvas></div>
+          </div>
+          <div class="chart-panel">
+            <h4><b>错误原因分布</b> · Error Reasons</h4>
+            <div class="chart-wrapper"><canvas ref="canvasErrorReasons"></canvas></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 数据探索 -->
+      <div v-if="activeTab==='explore'">
+        <div class="section-title">数据探索 · Data Exploration</div>
+        <div class="chart-grid single">
+          <div class="chart-panel">
+            <h4><b>数值变量相关系数</b> · Pearson Correlation</h4>
+            <div class="heatmap-grid" v-if="heatmapFields.length > 0" :style="{ gridTemplateColumns: `auto repeat(${heatmapFields.length}, 1fr)` }">
+              <div></div>
+              <div class="hm-label" v-for="f in heatmapFields" :key="'h-'+f">{{ formatField(f) }}</div>
+              <template v-for="(row, i) in correlationMatrix" :key="'r-'+i">
+                <div class="hm-label" style="text-align: right; justify-content: flex-end; padding-right: 8px;">
+                  {{ formatField(heatmapFields[i]) }}
+                </div>
+                <div v-for="(cell, j) in row" :key="'c-'+i+'-'+j" 
+                     class="hm-cell" :style="getHeatmapColor(cell)" :title="`r = ${cell.toFixed(3)}`">
+                  {{ cell.toFixed(2) }}
+                </div>
+              </template>
+            </div>
+            <div v-else style="color:var(--muted); text-align:center; padding: 2rem;">计算相关系数的有效数值字段不足。</div>
+          </div>
+          <div class="chart-panel">
+            <h4><b>LLM 延迟 vs Total Tokens</b> · Scatter</h4>
+            <div class="chart-wrapper tall"><canvas ref="canvasScatter"></canvas></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 吞吐与占比 -->
+      <div v-if="activeTab==='throughput'">
+        <div class="section-title">吞吐与占比 · Throughput & Share</div>
+        <div class="chart-grid">
+          <div class="chart-panel">
+            <h4><b>请求吞吐</b> · Requests Over Time</h4>
+            <div style="margin-bottom:.5rem; display:flex; gap:.5rem; align-items:center;">
+              <span class="toolbar-label">粒度:</span>
+              <select class="filter-pill" v-model="grouping">
+                <option value="minute">分钟</option>
+                <option value="hour">小时</option>
+                <option value="day">天</option>
+              </select>
+            </div>
+            <div class="chart-wrapper tall"><canvas ref="canvasThroughput"></canvas></div>
+          </div>
+          <div class="chart-panel">
+            <h4><b>模型请求占比</b> · Model Share</h4>
+            <div class="chart-wrapper"><canvas ref="canvasModelShare"></canvas></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 效率并入：在模型对比中展示 TPS -->
+
+      <div v-if="activeTab==='conversations'">
+        <div class="section-title">对话分析 · Conversation Analysis</div>
+        <div class="stat-grid">
+          <div class="stat-card" style="--c: var(--accent2)">
+            <div class="label">综合评分（五维）</div>
+            <div class="value">{{ compositeScore.toFixed(2) }}</div>
+            <div class="sub">1 - 5，安全感/语气/清晰度/帮助度/事实性平均</div>
+          </div>
+          <div class="stat-card" style="--c: var(--accent3)">
+            <div class="label">User Satisfaction</div>
+            <div class="value">{{ satisfactionScore.toFixed(2) }}</div>
+            <div class="sub">1 - 5，历史对话平均满意度</div>
+          </div>
+        </div>
+        <div class="chart-grid">
+          <div class="chart-panel">
+            <h4><b>意图分布</b> · Intent Distribution</h4>
+            <div class="chart-wrapper"><canvas ref="canvasIntentDist"></canvas></div>
+          </div>
+          <div class="chart-panel">
+            <h4><b>维度平均分</b> · Dimension Averages</h4>
+            <div class="chart-wrapper"><canvas ref="canvasRatingBar"></canvas></div>
+          </div>
+        </div>
+        <div class="chart-grid single">
+          <div class="chart-panel">
+            <h4><b>综合评估雷达图</b> · Radar</h4>
+            <div class="chart-wrapper"><canvas ref="canvasRatingRadar"></canvas></div>
+          </div>
+        </div>
+        <div class="table-panel">
+          <div class="table-toolbar">
+            <span style="font-family: var(--mono); font-size: 0.8rem; color: var(--muted);">
+              显示 {{ (convPage - 1) * convPageSize + 1 }} - {{ Math.min(convPage * convPageSize, conversationRows.length) }} 
+              / 共 {{ conversationRows.length }} 条记录
+            </span>
+            <div class="pagination">
+              <button class="btn-page" :disabled="convPage === 1" @click="convPage--">Prev</button>
+              <span style="font-family: var(--mono); font-size: 0.8rem; margin: 0 0.5rem;">Page {{ convPage }} / {{ convTotalPages }}</span>
+              <button class="btn-page" :disabled="convPage === convTotalPages" @click="convPage++">Next</button>
+            </div>
+          </div>
+          <div class="table-scroller">
+            <table class="data-table conv-table">
+              <thead>
+                <tr>
+                  <th>timestamp</th>
+                  <th>input</th>
+                  <th>intent</th>
+                  <th>upstream</th>
+                  <th>rating</th>
+                  <th>image</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="(row, i) in convPaginated" :key="'conv-'+i">
+                  <td style="color: var(--muted)">{{ fmtDateTime(row.timestamp) }}</td>
+                  <td style="max-width: 360px; white-space: normal;">{{ row.user_input || '—' }}</td>
+                  <td><span class="tag">{{ row.intent || '—' }}</span></td>
+                  <td style="max-width: 640px;">
+                    <div :class="['upstream', expandedConv.has((convPage-1)*convPageSize + i) ? '' : 'clamped']">
+                      {{ row.upstream || '—' }}
+                    </div>
+                    <button v-if="row.upstream && row.upstream.length > 120" class="link-btn" @click="toggleExpand((convPage-1)*convPageSize + i)">
+                      {{ expandedConv.has((convPage-1)*convPageSize + i) ? '收起' : '展开' }}
+                    </button>
+                  </td>
+                  <td>
+                    <div style="display:flex; flex-direction:column; gap:0.25rem; font-size:.7rem;">
+                      <label style="display:flex; align-items:center; gap:0.35rem;" v-for="dim in ratingDims" :key="dim.key">
+                        <span style="min-width:72px;">{{ dim.label }}</span>
+                        <select class="filter-pill" style="padding:0.1rem 0.4rem; min-width:70px;" :value="getRating(row.id, dim.key)" @change="setRating(row.id, dim.key, Number($event.target.value))">
+                          <option :value="0">—</option>
+                          <option v-for="n in 5" :key="dim.key+n" :value="n">{{ n }}</option>
+                        </select>
+                      </label>
+                      <label style="display:flex; align-items:center; gap:0.35rem;">
+                        <span style="min-width:72px;">满意度</span>
+                        <select class="filter-pill" style="padding:0.1rem 0.4rem; min-width:70px;" :value="getRating(row.id, 's')" @change="setRating(row.id, 's', Number($event.target.value))">
+                          <option :value="0">—</option>
+                          <option v-for="n in 5" :key="'s'+n" :value="n">{{ n }}</option>
+                        </select>
+                      </label>
+                    </div>
+                  </td>
+                  <td>
+                    <template v-if="getImageSrc(row)">
+                      <img :src="getImageSrc(row)" alt="" class="thumb" @click.prevent="openViewer(getImageSrc(row))" style="cursor: zoom-in;" />
+                    </template>
+                    <span v-else>—</span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div v-if="viewerSrc" class="lightbox" @click="closeViewer">
+        <img :src="viewerSrc" alt="">
+      </div>
+
+      <!-- 原始数据表 -->
+      <div v-if="activeTab==='table'">
+        <div class="section-title">原始数据 · Raw Records</div>
+        <div class="table-panel">
+          <div class="table-toolbar">
+            <span style="font-family: var(--mono); font-size: 0.8rem; color: var(--muted);">
+              显示 {{ (currentPage - 1) * pageSize + 1 }} - {{ Math.min(currentPage * pageSize, filteredData.length) }} 
+              / 共 {{ filteredData.length }} 条记录
+            </span>
+            <div class="pagination">
+              <button class="btn-page" :disabled="currentPage === 1" @click="currentPage--">Prev</button>
+              <span style="font-family: var(--mono); font-size: 0.8rem; margin: 0 0.5rem;">Page {{ currentPage }} / {{ totalPages }}</span>
+              <button class="btn-page" :disabled="currentPage === totalPages" @click="currentPage++">Next</button>
+            </div>
+          </div>
+          <div class="table-scroller">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th v-for="col in tableColumns" :key="col" @click="toggleSort(col)" class="th-click">
+                    <span class="th-inner">
+                      {{ col }}
+                      <span v-if="sortBy === col" class="sort-arrow">{{ sortAsc ? '↑' : '↓' }}</span>
+                    </span>
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="(row, i) in paginatedData" :key="i">
+                  <td v-for="col in tableColumns" :key="col">
+                    <span v-if="col === 'model'" class="tag">{{ formatModelName(row[col]) }}</span>
+                    <span v-else-if="col === 'cost_usd'" style="color: var(--accent3)">{{ fmtCost(row[col]) }}</span>
+                    <span v-else-if="col === 'intent'" style="color: var(--accent2)">{{ row[col] }}</span>
+                    <span v-else-if="col === 'user_input'" style="color: var(--accent5)">{{ truncateText(String(row[col]||''), 120) }}</span>
+                    <span v-else-if="['prompt_tokens','completion_tokens','total_tokens'].includes(col)" style="color: var(--accent5)">{{ row[col] }}</span>
+                    <span v-else-if="col.endsWith('_ms')" style="color: var(--accent)">{{ fmtMs(row[col]) }}</span>
+                    <span v-else-if="col === 'timestamp'" style="color: var(--muted)">{{ fmtDateTime(row[col]) }}</span>
+                    <span v-else-if="col === 'upstream'" style="color: var(--accent2)">{{ truncateText(String(row[col]||''), 120) }}</span>
+                    <span v-else-if="col === 'ui_image_compressed'" style="color: var(--accent3)">{{ truncateText(String(row[col]||''), 32) }}</span>
+                    <span v-else-if="col === 'render_mode'">
+                      <span class="tag" :style="String(row[col]).toLowerCase()==='planner' ? { background:'rgba(232,201,106,.15)', color:'var(--accent)' } : { background:'rgba(95,179,245,.15)', color:'var(--accent2)' }">{{ row[col] }}</span>
+                    </span>
+                    <span v-else-if="col === 'error'" style="color: var(--accent4)">{{ row[col] || '—' }}</span>
+                    <span v-else>{{ row[col] !== null && row[col] !== undefined ? row[col] : '—' }}</span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </transition>
+</div>
+
+<script>
+const CHART_COLORS =['#e8c96a','#5fb3f5','#6cf0c2','#f07070','#c67be8','#f5a05f'];
+function hexToRgba(hex, alpha) {
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
+// Chart.js 全局默认设置
+Chart.defaults.color = '#64748b';
+Chart.defaults.borderColor = '#232d42';
+Chart.defaults.font.family = "'Space Mono', monospace";
+Chart.defaults.font.size = 10;
+
+const { createApp, ref, computed, watch, nextTick, onMounted, shallowRef } = Vue;
+
+// 基础数学工具
+const sum = arr => arr.reduce((a,b)=>a+(b||0), 0);
+const mean = arr => arr.length ? sum(arr)/arr.length : 0;
+const max = arr => arr.length ? Math.max(...arr) : 0;
+const percentile = (arr, p) => {
+  if(!arr.length) return 0;
+  const s = [...arr].sort((a,b)=>a-b);
+  const i = (p/100)*(s.length-1);
+  const lo = Math.floor(i), hi = Math.ceil(i);
+  return s[lo] + (s[hi]-s[lo])*(i-lo);
+};
+const pearson = (x, y) => {
+  const n = x.length; if(n === 0) return 0;
+  const mx = mean(x), my = mean(y);
+  let num = 0, denX = 0, denY = 0;
+  for(let i=0; i<n; i++) {
+    const dx = x[i]-mx, dy = y[i]-my;
+    num += dx*dy; denX += dx*dx; denY += dy*dy;
+  }
+  return (denX === 0 || denY === 0) ? 0 : num / Math.sqrt(denX * denY);
+};
+
+createApp({
+  setup() {
+    const dataLoaded = ref(false);
+    const isDragging = ref(false);
+    const rawData = ref([]);
+    const activeTab = ref('overview');
+    const backgroundEnabled = ref(true);
+    
+    // 过滤与分页
+    const selectedModel = ref('All');
+    const selectedMode = ref('All');
+    const selectedStatus = ref('All');
+    const currentPage = ref(1);
+    const pageSize = ref(50);
+    const dateStart = ref('');
+    const dateEnd = ref('');
+    const searchQuery = ref('');
+    const latencyMin = ref(null);
+    const latencyMax = ref(null);
+    const grouping = ref('minute');
+    
+    // Canvas Refs
+    const canvasLatencyBar = ref(null);
+    const canvasLatencyHist = ref(null);
+    const canvasTimeSeries = ref(null);
+    const canvasStacked = ref(null);
+    const canvasTokenDist = ref(null);
+    const canvasCost = ref(null);
+    const canvasModelTokens = ref(null);
+    const canvasModelCost = ref(null);
+    const canvasScatter = ref(null);
+    const canvasThroughput = ref(null);
+    const canvasModelShare = ref(null);
+    const canvasTokensPerSec = ref(null);
+    const canvasCostHist = ref(null);
+    const canvasIntentDist = ref(null);
+    const canvasRatingRadar = ref(null);
+    const canvasRatingBar = ref(null);
+    const canvasSuccessPie = ref(null);
+    const canvasErrorReasons = ref(null);
+    const canvasModeShare = ref(null);
+    const canvasModeLatency = ref(null);
+    const canvasModeCost = ref(null);
+    const canvasModeTokens = ref(null);
+    
+    // 存储 Chart 实例
+    let chartInstances = {};
+    let histBins = [];
+    let bgCanvas = null;
+    let bgCtx = null;
+    let bgRaf = 0;
+    // 背景数据结构（神经网络双层）
+    let netNodes1 = [], netNodes2 = [];
+    let netPulses = [];
+    let netThreshold1 = 140, netThreshold2 = 100;
+    const imageCache = new Map();
+
+    // --- Computed 数据 ---
+    const availableModels = computed(() => {
+      const models = new Set(rawData.value.map(r => r.model).filter(Boolean));
+      return Array.from(models);
+    });
+
+    const filteredData = computed(() => {
+      let data = selectedModel.value === 'All' 
+        ? rawData.value 
+        : rawData.value.filter(r => r.model === selectedModel.value);
+      if (selectedMode.value !== 'All') {
+        data = data.filter(r => String(r.render_mode||'').toLowerCase() === selectedMode.value);
+      }
+      if (selectedStatus.value !== 'All') {
+        const ok = (r) => {
+          const hasImg = !!(r.ui_image_compressed && String(r.ui_image_compressed).length);
+          const hasErr = !!(r.error && String(r.error).length);
+          return hasImg && !hasErr;
+        };
+        data = data.filter(r => selectedStatus.value === 'Success' ? ok(r) : !ok(r));
+      }
+      if (dateStart.value) {
+        const s = new Date(dateStart.value).getTime();
+        data = data.filter(r => new Date(r.timestamp || 0).getTime() >= s);
+      }
+      if (dateEnd.value) {
+        const e = new Date(dateEnd.value).getTime();
+        data = data.filter(r => new Date(r.timestamp || 0).getTime() <= e);
+      }
+      if (latencyMin.value != null) {
+        data = data.filter(r => (Number(r.total_ms)||0) >= Number(latencyMin.value));
+      }
+      if (latencyMax.value != null) {
+        data = data.filter(r => (Number(r.total_ms)||0) <= Number(latencyMax.value));
+      }
+      const q = String(searchQuery.value||'').trim().toLowerCase();
+      if (q) {
+        data = data.filter(r => String(r.model||'').toLowerCase().includes(q));
+      }
+      return data.sort((a,b) => new Date(a.timestamp || 0) - new Date(b.timestamp || 0));
+    });
+
+    // 动态提取存在的耗时列
+    const msFields = computed(() => {
+      const possible =['prompt_ms', 'llm_ms', 'html_ms', 'render_ms'];
+      return possible.filter(f => rawData.value.some(r => typeof r[f] === 'number'));
+    });
+
+    const summary = computed(() => {
+      const d = filteredData.value;
+      const getCol = f => d.map(r=>r[f]).filter(v => typeof v === 'number');
+      return {
+        avgTotalMs: mean(getCol('total_ms')),
+        maxTotalMs: max(getCol('total_ms')),
+        avgLlmMs: mean(getCol('llm_ms')),
+        p95LlmMs: percentile(getCol('llm_ms'), 95),
+        totalTokens: sum(getCol('total_tokens')),
+        avgTokens: mean(getCol('total_tokens')),
+        totalCost: sum(getCol('cost_usd')),
+        avgCost: mean(getCol('cost_usd'))
+      };
+    });
+    const successStats = computed(() => {
+      const d = filteredData.value;
+      let success = 0, failure = 0;
+      for (const r of d) {
+        const ok = !!(r.ui_image_compressed && String(r.ui_image_compressed).length) && !String(r.error||'').length;
+        if (ok) success++; else failure++;
+      }
+      const total = success + failure || 1;
+      return { success, failure, rate: success/total };
+    });
+
+    // 模型横向对比
+    const modelAverages = computed(() => {
+      return availableModels.value.map(m => {
+        const mData = rawData.value.filter(r => r.model === m);
+        return {
+          model: m,
+          avg: mean(mData.map(r => r.total_ms).filter(v => typeof v === 'number')),
+          count: mData.length
+        };
+      }).sort((a,b) => b.avg - a.avg);
+    });
+    const maxModelAvg = computed(() => max(modelAverages.value.map(m => m.avg)) || 1);
+
+    // 热力图计算（仅分析指定字段）
+    const heatmapFields = computed(() => {
+      const fields = ['prompt_tokens','completion_tokens','total_tokens','cost_usd','prompt_ms','llm_ms','html_ms','render_ms','total_ms'];
+      return fields.filter(f => rawData.value.some(r => typeof r[f] === 'number'));
+    });
+    
+    const correlationMatrix = computed(() => {
+      const d = filteredData.value;
+      const fields = heatmapFields.value;
+      return fields.map(f1 => {
+        const col1 = d.map(r => Number(r[f1]) || 0);
+        return fields.map(f2 => {
+          const col2 = d.map(r => Number(r[f2]) || 0);
+          return pearson(col1, col2);
+        });
+      });
+    });
+
+    // 表格分页
+    const tableColumns = computed(() => {
+      if(!rawData.value.length) return [];
+      return Object.keys(rawData.value[0]);
+    });
+    const totalPages = computed(() => Math.ceil(filteredData.value.length / pageSize.value) || 1);
+    const sortBy = ref('');
+    const sortAsc = ref(true);
+    const sortedData = computed(() => {
+      if (!sortBy.value) return filteredData.value;
+      const col = sortBy.value;
+      const arr = [...filteredData.value];
+      arr.sort((a,b) => {
+        const va = a[col], vb = b[col];
+        if (typeof va === 'number' && typeof vb === 'number') return sortAsc.value ? va - vb : vb - va;
+        const sa = String(va||''); const sb = String(vb||'');
+        return sortAsc.value ? sa.localeCompare(sb) : sb.localeCompare(sa);
+      });
+      return arr;
+    });
+    const paginatedData = computed(() => {
+      const start = (currentPage.value - 1) * pageSize.value;
+      return sortedData.value.slice(start, start + pageSize.value);
+    });
+
+    const intentStats = computed(() => {
+      const map = new Map();
+      for (const r of filteredData.value) {
+        const key = String(r.intent || 'unknown');
+        map.set(key, (map.get(key)||0)+1);
+      }
+      const labels = Array.from(map.keys());
+      const counts = labels.map(l => map.get(l));
+      return { labels, counts };
+    });
+    const conversationId = (r) => `${String(r.timestamp||'')}|${String(r.model||'')}`;
+    const conversationRows = computed(() => {
+      return filteredData.value.map(r => ({
+        id: conversationId(r),
+        timestamp: r.timestamp,
+        render_mode: r.render_mode || '',
+        user_input: r.user_input || '',
+        intent: r.intent || '',
+        upstream: r.upstream || '',
+        ui_image_compressed: r.ui_image_compressed || ''
+      })).sort((a,b) => new Date(b.timestamp||0) - new Date(a.timestamp||0));
+    });
+    const convPage = ref(1);
+    const convPageSize = ref(20);
+    const convTotalPages = computed(() => Math.ceil(conversationRows.value.length / convPageSize.value) || 1);
+    const convPaginated = computed(() => {
+      const start = (convPage.value - 1) * convPageSize.value;
+      return conversationRows.value.slice(start, start + convPageSize.value);
+    });
+    watch([selectedModel, dateStart, dateEnd], () => { convPage.value = 1; });
+    const expandedConv = ref(new Set());
+    const toggleExpand = (k) => {
+      const s = new Set(expandedConv.value);
+      if (s.has(k)) s.delete(k); else s.add(k);
+      expandedConv.value = s;
+    };
+    const viewerSrc = ref('');
+    const openViewer = (src) => { viewerSrc.value = src || ''; };
+    const closeViewer = () => { viewerSrc.value = ''; };
+    const ratingState = ref({});
+    const RATING_STORAGE_KEY = 'wabi_ui_metrics_ratings_v1';
+    const loadRatingState = () => {
+      try {
+        const raw = localStorage.getItem(RATING_STORAGE_KEY);
+        if (!raw) return;
+        const parsed = JSON.parse(raw);
+        if (parsed && typeof parsed === 'object') ratingState.value = parsed;
+      } catch (e) {}
+    };
+    const saveRatingState = () => {
+      try {
+        localStorage.setItem(RATING_STORAGE_KEY, JSON.stringify(ratingState.value || {}));
+      } catch (e) {}
+    };
+    let ratingSaveTimer = null;
+    const scheduleSaveRatings = () => {
+      try {
+        if (ratingSaveTimer) clearTimeout(ratingSaveTimer);
+        ratingSaveTimer = setTimeout(saveRatingState, 250);
+      } catch (e) {}
+    };
+    const ratingDims = [
+      { key: 'safety', label: '安全感' },
+      { key: 'tone', label: '语气合适度' },
+      { key: 'clarity', label: '清晰度' },
+      { key: 'help', label: '帮助度' },
+      { key: 'factual', label: '事实性' }
+    ];
+    const getRating = (id, field) => {
+      const r = ratingState.value[id];
+      return r ? r[field] || 0 : 0;
+    };
+    const setRating = (id, field, value) => {
+      const v = Math.max(0, Math.min(5, value||0));
+      const prev = ratingState.value[id] || { u:0, s:0 };
+      ratingState.value = Object.assign({}, ratingState.value, { [id]: Object.assign({}, prev, { [field]: v }) });
+    };
+    const dimAverages = computed(() => {
+      const ids = conversationRows.value.map(r => r.id);
+      const sums = {}; const counts = {};
+      for (const { key } of ratingDims) { sums[key]=0; counts[key]=0; }
+      for (const id of ids) {
+        const r = ratingState.value[id] || {};
+        for (const { key } of ratingDims) {
+          const v = Number(r[key]||0);
+          if (v > 0) { sums[key] += v; counts[key]++; }
+        }
+      }
+      const avg = {};
+      for (const { key } of ratingDims) avg[key] = counts[key] ? (sums[key]/counts[key]) : 0;
+      return avg;
+    });
+    const compositeScore = computed(() => {
+      const vals = ratingDims.map(d => dimAverages.value[d.key]).filter(v => v > 0);
+      if (!vals.length) return 0;
+      const sumv = vals.reduce((a,b)=>a+b,0);
+      return sumv / vals.length;
+    });
+    const satisfactionScore = computed(() => {
+      const ids = conversationRows.value.map(r => r.id);
+      let sum = 0, cnt = 0;
+      for (const id of ids) {
+        const r = ratingState.value[id];
+        if (r && r.s > 0) { sum += r.s; cnt++; }
+      }
+      if (!cnt) return 0;
+      return sum / cnt;
+    });
+
+    // 监听过滤器变化重置分页并刷新图表
+    watch(selectedModel, () => {
+      currentPage.value = 1;
+      nextTick(() => renderCharts());
+    });
+    watch(selectedMode, () => {
+      currentPage.value = 1;
+      nextTick(() => renderCharts());
+    });
+    watch(selectedStatus, () => {
+      currentPage.value = 1;
+      nextTick(() => renderCharts());
+    });
+    watch(filteredData, () => {
+      nextTick(() => renderCharts());
+    });
+    watch([dateStart, dateEnd, latencyMin, latencyMax], () => {
+      currentPage.value = 1;
+      nextTick(() => renderCharts());
+    });
+    watch(grouping, () => {
+      nextTick(() => renderCharts());
+    });
+    watch(activeTab, () => {
+      nextTick(() => renderCharts());
+    });
+    watch(ratingState, () => {
+      scheduleSaveRatings();
+      nextTick(() => renderCharts());
+    });
+    watch(dimAverages, () => {
+      nextTick(() => renderCharts());
+    });
+    watch(satisfactionScore, () => {
+      nextTick(() => renderCharts());
+    });
+    onMounted(() => {
+      initBg();
+      if (backgroundEnabled.value) startBg();
+      loadRatingState();
+    });
+    watch(backgroundEnabled, v => {
+      if (v) startBg(); else stopBg();
+    });
+
+    // --- 方法 ---
+    const processCSV = (csvStr) => {
+      const res = Papa.parse(csvStr.trim(), { header: true, skipEmptyLines: true, dynamicTyping: true });
+      rawData.value = res.data.filter(r => r.timestamp || r.model);
+      if(rawData.value.length > 0) {
+        dataLoaded.value = true;
+        nextTick(() => renderCharts());
+      } else {
+        alert("CSV 解析失败或数据为空");
+      }
+    };
+
+    const handleFileSelect = (e) => {
+      const file = e.target.files[0];
+      if(!file) return;
+      const reader = new FileReader();
+      reader.onload = ev => processCSV(ev.target.result);
+      reader.readAsText(file);
+    };
+
+    const handleDrop = (e) => {
+      isDragging.value = false;
+      const file = e.dataTransfer.files[0];
+      if(file) {
+        const reader = new FileReader();
+        reader.onload = ev => processCSV(ev.target.result);
+        reader.readAsText(file);
+      }
+    };
+
+    const resetFilters = () => {
+      selectedModel.value = 'All';
+      selectedMode.value = 'All';
+      selectedStatus.value = 'All';
+      dateStart.value = '';
+      dateEnd.value = '';
+      searchQuery.value = '';
+      latencyMin.value = null;
+      latencyMax.value = null;
+      currentPage.value = 1;
+      nextTick(() => renderCharts());
+    };
+    const exportCSV = () => {
+      if (!filteredData.value.length) return;
+      const cols = tableColumns.value;
+      const lines = [cols.join(',')].concat(filteredData.value.map(r => cols.map(c => r[c]).join(',')));
+      const blob = new Blob([lines.join('\n')], {type:'text/csv;charset=utf-8;'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = 'filtered_records.csv'; a.click();
+      URL.revokeObjectURL(url);
+    };
+    const toggleSort = (col) => {
+      if (sortBy.value === col) sortAsc.value = !sortAsc.value;
+      else { sortBy.value = col; sortAsc.value = true; }
+    };
+    const downloadChart = (key, filename) => {
+      const inst = chartInstances[key];
+      if (!inst) return;
+      const url = inst.toBase64Image();
+      const a = document.createElement('a');
+      a.href = url; a.download = filename || `${key}.png`; a.click();
+    };
+    const decodeB64 = (b64) => {
+      try {
+        const bin = atob(b64);
+        const len = bin.length;
+        const bytes = new Uint8Array(len);
+        for (let i=0;i<len;i++) bytes[i] = bin.charCodeAt(i);
+        return bytes;
+      } catch(e) { return new Uint8Array(0); }
+    };
+    const getImageSrc = (row) => {
+      const key = row.ui_image_compressed;
+      if (!key) return '';
+      if (imageCache.has(key)) return imageCache.get(key);
+      try {
+        const bytes = decodeB64(key);
+        const url = window.pako.inflate(bytes, { to: 'string' });
+        if (typeof url === 'string' && url.startsWith('data:')) {
+          imageCache.set(key, url);
+          return url;
+        }
+        imageCache.set(key, '');
+        return '';
+      } catch(e) {
+        imageCache.set(key, '');
+        return '';
+      }
+    };
+    const initBg = () => {
+      bgCanvas = document.getElementById('bg-canvas');
+      if (!bgCanvas) return;
+      bgCtx = bgCanvas.getContext('2d');
+      resizeBg();
+      initNetwork();
+      window.addEventListener('resize', resizeBg);
+    };
+    const resizeBg = () => {
+      if (!bgCanvas) return;
+      const dpr = Math.max(1, window.devicePixelRatio||1);
+      const r = bgCanvas.getBoundingClientRect();
+      bgCanvas.width = Math.floor(r.width*dpr);
+      bgCanvas.height = Math.floor(r.height*dpr);
+      bgCtx.setTransform(dpr,0,0,dpr,0,0);
+      initNetwork();
+    };
+    const initNetwork = () => {
+      if (!bgCanvas) return;
+      const w = bgCanvas.clientWidth, h = bgCanvas.clientHeight;
+      const area = w * h;
+      const count1 = Math.min(90, Math.max(40, Math.floor(area / 42000)));
+      const count2 = Math.min(50, Math.max(20, Math.floor(area / 70000)));
+      netNodes1 = []; netNodes2 = []; netPulses = [];
+      netThreshold1 = Math.max(100, Math.min(180, Math.sqrt((w*h)/count1)/7.5));
+      netThreshold2 = Math.max(80, Math.min(150, Math.sqrt((w*h)/count2)/8.5));
+      for (let i=0;i<count1;i++) {
+        netNodes1.push({
+          x: Math.random()*w, y: Math.random()*h,
+          vx: (Math.random()*2-1)*0.22, vy: (Math.random()*2-1)*0.22,
+          r: 1.5 + Math.random()*1.2,
+          c: CHART_COLORS[i%CHART_COLORS.length]
+        });
+      }
+      for (let i=0;i<count2;i++) {
+        netNodes2.push({
+          x: Math.random()*w, y: Math.random()*h,
+          vx: (Math.random()*2-1)*0.12, vy: (Math.random()*2-1)*0.12,
+          r: 1.2 + Math.random()*1.0,
+          c: CHART_COLORS[(i+3)%CHART_COLORS.length]
+        });
+      }
+    };
+    const drawBg = () => {
+      if (!bgCanvas || !bgCtx) return;
+      const w = bgCanvas.clientWidth, h = bgCanvas.clientHeight;
+      bgCtx.clearRect(0,0,w,h);
+      const clipP = 8;
+      bgCtx.save();
+      bgCtx.beginPath();
+      bgCtx.rect(clipP, 0, Math.max(0, w - clipP*2), h);
+      bgCtx.clip();
+      // 更新节点（两层不同速率）
+      const updateNodes = (arr, margin=20) => {
+        for (const n of arr) {
+          n.x += n.vx; n.y += n.vy;
+          if (n.x < clipP - margin) n.x = w - clipP + margin;
+          if (n.x > w - clipP + margin) n.x = clipP - margin;
+          if (n.y < -margin) n.y = h+margin;
+          if (n.y > h+margin) n.y = -margin;
+        }
+      };
+      updateNodes(netNodes1, 24);
+      updateNodes(netNodes2, 28);
+
+      // 绘制连接线（前景层）
+      const drawLinks = (arr, threshold, glow=8) => {
+        for (let i=0;i<arr.length;i++) {
+          const a = arr[i];
+          for (let j=i+1;j<arr.length;j++) {
+            const b = arr[j];
+            const dx = a.x-b.x, dy = a.y-b.y;
+            const d = Math.hypot(dx,dy);
+            if (d < threshold) {
+              const alpha = 1 - (d / threshold);
+              const lw = 0.6 + 1.2*alpha;
+              bgCtx.lineWidth = lw;
+              bgCtx.shadowBlur = glow * alpha;
+              bgCtx.shadowColor = a.c;
+              bgCtx.strokeStyle = hexToRgba(a.c, 0.18*alpha);
+              bgCtx.beginPath();
+              bgCtx.moveTo(a.x, a.y);
+              bgCtx.lineTo(b.x, b.y);
+              bgCtx.stroke();
+              if (Math.random() < 0.0009) netPulses.push({ ax:a.x, ay:a.y, bx:b.x, by:b.y, t:0, s:0.012+Math.random()*0.015, c: b.c });
+            }
+          }
+        }
+        bgCtx.shadowBlur = 0;
+      };
+      drawLinks(netNodes2, netThreshold2, 10);
+      drawLinks(netNodes1, netThreshold1, 14);
+
+      // 激活脉冲
+      const keep = [];
+      for (const p of netPulses) {
+        p.t += p.s;
+        if (p.t <= 1) {
+          const x = p.ax + (p.bx - p.ax) * p.t;
+          const y = p.ay + (p.by - p.ay) * p.t;
+          bgCtx.fillStyle = hexToRgba(p.c, 0.95);
+          bgCtx.shadowBlur = 12;
+          bgCtx.shadowColor = p.c;
+          bgCtx.beginPath();
+          bgCtx.arc(x, y, 2.4, 0, Math.PI*2);
+          bgCtx.fill();
+          keep.push(p);
+        }
+      }
+      netPulses = keep;
+      bgCtx.shadowBlur = 0;
+
+      // 绘制节点（两层）
+      const drawNodes = (arr, radiusGlow=9) => {
+        for (const n of arr) {
+          const g = bgCtx.createRadialGradient(n.x, n.y, 0, n.x, n.y, radiusGlow);
+          g.addColorStop(0, hexToRgba(n.c, 0.45));
+          g.addColorStop(1, hexToRgba(n.c, 0));
+          bgCtx.fillStyle = g;
+          bgCtx.beginPath();
+          bgCtx.arc(n.x, n.y, n.r+3, 0, Math.PI*2);
+          bgCtx.fill();
+          bgCtx.fillStyle = hexToRgba('#ffffff', 0.85);
+          bgCtx.beginPath();
+          bgCtx.arc(n.x, n.y, n.r, 0, Math.PI*2);
+          bgCtx.fill();
+        }
+      };
+      drawNodes(netNodes2, 7);
+      drawNodes(netNodes1, 9);
+      bgCtx.restore();
+    };
+    const loopBg = () => {
+      bgRaf = requestAnimationFrame(loopBg);
+      drawBg();
+    };
+    const startBg = () => {
+      if (!bgCanvas) initBg();
+      if (bgRaf) cancelAnimationFrame(bgRaf);
+      loopBg();
+    };
+    const stopBg = () => {
+      if (bgRaf) cancelAnimationFrame(bgRaf);
+      bgRaf = 0;
+      if (bgCtx && bgCanvas) {
+        const w = bgCanvas.clientWidth, h = bgCanvas.clientHeight;
+        bgCtx.clearRect(0,0,w,h);
+      }
+    };
+
+    // 格式化工具
+    const fmtMs = ms => ms >= 1000 ? (ms/1000).toFixed(2)+'s' : Math.round(ms||0)+'ms';
+    const fmtCost = c => (c||0) < 0.001 ? ((c||0)*1000).toFixed(3)+'m$' : '$'+(c||0).toFixed(4);
+    const formatNumber = n => new Intl.NumberFormat().format(Math.round(n||0));
+    const formatModelName = m => String(m||'').split('/').pop();
+    const formatField = f => f.replace('_tokens', '_tok').replace('_usd', '').replace('_ms', ' (ms)').toUpperCase();
+    const fmtMsTick = v => (v||0) >= 1000 ? (v/1000).toFixed(1)+'s' : Math.round(v||0)+'ms';
+    const fmtCostTick = v => {
+      const c = Number(v)||0;
+      return c < 0.001 ? (c*1000).toFixed(3)+' m$' : '$'+c.toFixed(4);
+    };
+    const fmtTimeHM = t => {
+      const d = new Date(t||0);
+      if (isNaN(d)) return String(t||'');
+      const hh = String(d.getHours()).padStart(2,'0');
+      const mm = String(d.getMinutes()).padStart(2,'0');
+      return `${hh}:${mm}`;
+    };
+    const fmtDateTime = t => {
+      const d = new Date(t||0);
+      if (!isNaN(d)) {
+        const Y = d.getFullYear();
+        const M = String(d.getMonth()+1).padStart(2,'0');
+        const D = String(d.getDate()).padStart(2,'0');
+        const H = String(d.getHours()).padStart(2,'0');
+        const m = String(d.getMinutes()).padStart(2,'0');
+        const s = String(d.getSeconds()).padStart(2,'0');
+        return `${Y}-${M}-${D} ${H}:${m}:${s}`;
+      }
+      const s = String(t||'');
+      if (s.includes('T')) return s.replace('T',' ').slice(0,19);
+      return s.slice(0,19);
+    };
+    const truncateText = (s, n) => {
+      const str = String(s||'');
+      if (str.length <= n) return str;
+      return str.slice(0, n) + '…';
+    };
+
+    const getHeatmapColor = (val) => {
+      const alpha = Math.abs(val) * 0.9;
+      const bg = val > 0 ? `rgba(95,179,245, ${alpha})` : `rgba(240,112,112, ${alpha})`;
+      return { background: bg, minWidth: '45px', minHeight: '45px' };
+    };
+
+    // --- Chart.js 渲染逻辑 ---
+    const getChartOptions = (extra = {}) => ({
+      responsive: true, maintainAspectRatio: false,
+      animation: { duration: 800, easing: 'easeOutQuart' },
+      interaction: { mode: 'nearest', intersect: true },
+      elements: { point: { radius: 3, hoverRadius: 6, hitRadius: 10 } },
+      plugins: {
+        legend: { display: false },
+        tooltip: { backgroundColor: '#121622', borderColor: '#364463', borderWidth: 1, padding: 10, cornerRadius: 4 }
+      },
+      scales: {
+        x: { grid: { color: 'rgba(255,255,255,0.03)' } },
+        y: { grid: { color: 'rgba(255,255,255,0.03)' } }
+      },
+      ...extra
+    });
+
+    const createChart = (key, canvasNode, config) => {
+      if(!canvasNode) return;
+      if(chartInstances[key]) chartInstances[key].destroy();
+      chartInstances[key] = new Chart(canvasNode, config);
+    };
+
+    const renderCharts = () => {
+      const d = filteredData.value;
+      const getCol = f => d.map(r => Number(r[f]) || 0);
+      const timestamps = d.map(r => fmtTimeHM(r.timestamp));
+
+      // 1. Latency Bar
+      if (canvasLatencyBar.value) {
+        const stageMeans = msFields.value.map(f => mean(getCol(f)));
+        const positives = stageMeans.filter(v => v > 0);
+        const maxVal = stageMeans.length ? Math.max(...stageMeans) : 0;
+        const minVal = positives.length ? Math.min(...positives) : 0;
+        const useLog = minVal > 0 && maxVal / minVal > 20;
+        const options = useLog
+          ? getChartOptions({
+              scales: {
+                x: { grid: { color: 'rgba(255,255,255,0.03)' } },
+                y: {
+                  type: 'logarithmic',
+                  grid: { color: 'rgba(255,255,255,0.03)' },
+                  ticks: {
+                    color: '#64748b',
+                    callback: v => Math.round(v)
+                  }
+                }
+              }
+            })
+          : getChartOptions();
+        createChart('latencyBar', canvasLatencyBar.value, {
+          type: 'bar',
+          data: {
+            labels: msFields.value.map(formatField),
+            datasets:[{
+              data: stageMeans,
+              backgroundColor: CHART_COLORS.map(c => hexToRgba(c, 0.8)),
+              borderRadius: 4
+            }]
+          },
+          options
+        });
+      }
+
+      // 2. Latency Hist
+      if (canvasLatencyHist.value) {
+        const totals = getCol('total_ms').filter(v => typeof v === 'number' && !isNaN(v)).sort((a,b)=>a-b);
+        const n = totals.length || 1;
+        const cdf = totals.map((x,i)=>({ x, y: (i+1)/n }));
+        const p50 = percentile(totals, 50), p95 = percentile(totals, 95);
+        createChart('latencyHist', canvasLatencyHist.value, {
+          type: 'line',
+          data: {
+            datasets:[
+              {
+                label: 'ECDF', data: cdf,
+                borderColor: CHART_COLORS[0], backgroundColor: hexToRgba(CHART_COLORS[0], 0.12),
+                fill: true, tension: 0.1, pointRadius: 0, parsing: false, xAxisID: 'x', yAxisID: 'y'
+              },
+              {
+                type: 'scatter',
+                label: 'Markers',
+                data: [{x:p50, y:0.5},{x:p95, y:0.95}],
+                backgroundColor: hexToRgba('#ffffff',0.9), pointRadius: 4, pointHoverRadius: 6, parsing: false, xAxisID: 'x', yAxisID: 'y'
+              }
+            ]
+          },
+          options: getChartOptions({
+            scales: {
+              x: { type: 'linear', grid: { color: 'rgba(255,255,255,0.03)' }, ticks: { color: '#64748b', callback: fmtMsTick }, title: { display: true, text: 'Latency', color:'#64748b' } },
+              y: { type: 'linear', min: 0, max: 1, grid: { color: 'rgba(255,255,255,0.03)' }, ticks: { color: '#64748b', callback: v => Math.round(v*100)+'%' }, title: { display: true, text: 'Cumulative %', color:'#64748b' } }
+            },
+            plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ctx.dataset.type==='scatter' ? `P${ctx.raw.y*100|0}: ${fmtMs(ctx.raw.x)}` : `≤ ${fmtMs(ctx.parsed.x)}: ${(ctx.parsed.y*100).toFixed(1)}%` } } }
+          })
+        });
+      }
+
+      // 3. Time Series (Grouped multi-line)
+      if (canvasTimeSeries.value) {
+        const unit = grouping.value;
+        const buckets = new Map();
+        for (const r of d) {
+          const t = new Date(r.timestamp||0);
+          let key;
+          if (unit === 'minute') key = new Date(t.getFullYear(), t.getMonth(), t.getDate(), t.getHours(), t.getMinutes()).getTime();
+          else if (unit === 'hour') key = new Date(t.getFullYear(), t.getMonth(), t.getDate(), t.getHours()).getTime();
+          else key = new Date(t.getFullYear(), t.getMonth(), t.getDate()).getTime();
+          if (!buckets.has(key)) buckets.set(key, []);
+          buckets.get(key).push(r);
+        }
+        const keys = Array.from(buckets.keys()).sort((a,b)=>a-b);
+        const labels = keys.map(k => {
+          const dt = new Date(k);
+          if (unit === 'minute') return fmtTimeHM(dt);
+          if (unit === 'hour') return `${String(dt.getHours()).padStart(2,'0')}:00`;
+          const m = String(dt.getMonth()+1).padStart(2,'0');
+          const d2 = String(dt.getDate()).padStart(2,'0');
+          return `${m}-${d2}`;
+        });
+        const avgFor = (arr, field) => mean(arr.map(r => Number(r[field])||0));
+        const totals = keys.map(k => avgFor(buckets.get(k), 'total_ms'));
+        const stageSeries = msFields.value.map((f,i) => ({
+          key: f,
+          label: formatField(f),
+          color: CHART_COLORS[i % CHART_COLORS.length],
+          data: keys.map(k => avgFor(buckets.get(k), f))
+        }));
+        const ctx = canvasTimeSeries.value.getContext('2d');
+        const grad = ctx.createLinearGradient(0,0,0,300);
+        grad.addColorStop(0, hexToRgba(CHART_COLORS[0], 0.22));
+        grad.addColorStop(1, hexToRgba(CHART_COLORS[0], 0));
+        createChart('timeSeries', canvasTimeSeries.value, {
+          type: 'line',
+          data: {
+            labels,
+            datasets: [
+              { label: 'TOTAL (ms)', data: totals, borderColor: CHART_COLORS[0], backgroundColor: grad, fill: 'origin', tension: 0.35, pointRadius: 3, pointHoverRadius: 7, pointHitRadius: 12, hitRadius: 12, borderWidth: 2.8, order: 0 },
+              ...stageSeries.map(s => ({
+                label: s.label,
+                data: s.data,
+                borderColor: hexToRgba(s.color, 0.8),
+                backgroundColor: 'transparent',
+                fill: false,
+                tension: 0.25,
+                pointRadius: 2,
+                pointHoverRadius: 6,
+                pointHitRadius: 12,
+                hitRadius: 12,
+                borderWidth: 1.5,
+                order: 1,
+                borderDash: s.key==='llm_ms' ? [6,6] : []
+              }))
+            ]
+          },
+          options: getChartOptions({
+            plugins: {
+              legend: {
+                display: true,
+                position: 'top',
+                labels: { color: '#cbd5f5', usePointStyle: true, padding: 16 }
+              }
+            },
+            elements: { line: { borderCapStyle: 'round', borderJoinStyle: 'round' } },
+            scales: { y: { ticks: { callback: fmtMsTick }, beginAtZero: true, grace: '5%' } }
+          })
+        });
+      }
+
+      // 4. Stacked removed (merged into grouped time series)
+
+      // 5. Token Dist
+      if (canvasTokenDist.value) {
+        createChart('tokenDist', canvasTokenDist.value, {
+          type: 'doughnut',
+          data: {
+            labels:['Prompt', 'Completion'],
+            datasets: [{
+              data:[mean(getCol('prompt_tokens')), mean(getCol('completion_tokens'))],
+              backgroundColor: [hexToRgba(CHART_COLORS[1], 0.8), hexToRgba(CHART_COLORS[2], 0.8)],
+              borderWidth: 0,
+              hoverOffset: 12,
+              hoverBorderWidth: 2,
+              hoverBorderColor: '#ffffff'
+            }]
+          },
+          options: {
+            responsive: true, maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                display: true, position: 'bottom',
+                labels: {
+                  generateLabels: chart => {
+                    const ds = chart.data.datasets[0] || {};
+                    const data = Array.isArray(ds.data) ? ds.data : [];
+                    const total = data.reduce((a,b)=>a+(+b||0),0) || 1;
+                    const colors = Array.isArray(ds.backgroundColor) ? ds.backgroundColor : [ds.backgroundColor, ds.backgroundColor];
+                    return (chart.data.labels || []).map((l,i) => ({
+                      text: `${l} ${(data[i]/total*100).toFixed(1)}%`,
+                      fillStyle: colors[i] || '#999',
+                      strokeStyle: 'transparent',
+                      lineWidth: 0,
+                      hidden: !chart.getDataVisibility(i),
+                      index: i,
+                      fontColor: '#cbd5f5'
+                    }));
+                  }
+                },
+                onClick: (e, item, legend) => {
+                  const ci = legend.chart;
+                  ci.toggleDataVisibility(item.index);
+                  ci.update();
+                }
+              },
+              tooltip: {
+                callbacks: {
+                  label: ctx => {
+                    const data = ctx.dataset.data;
+                    const total = data.reduce((a,b)=>a+(+b||0),0) || 1;
+                    const v = +ctx.parsed || 0;
+                    const pct = (v/total*100).toFixed(1);
+                    return `${ctx.label}: ${v.toFixed ? v.toFixed(2) : v} (${pct}%)`;
+                  }
+                }
+              }
+            }
+          }
+        });
+      }
+
+      // 6. Cost
+      if (canvasCost.value) {
+        createChart('cost', canvasCost.value, {
+          type: 'line',
+          data: {
+            labels: d.map((_, i) => `#${i+1}`),
+            datasets:[{
+              label: 'Cost (USD)', data: getCol('cost_usd'),
+              borderColor: CHART_COLORS[4], backgroundColor: hexToRgba(CHART_COLORS[4], 0.1),
+              fill: true, tension: 0.3, pointRadius: 4, pointHoverRadius: 8, pointHitRadius: 12, hitRadius: 12
+            }]
+          },
+          options: getChartOptions()
+        });
+      }
+
+      // 7 & 8. Model Benchmarks (Only if All)
+      if (selectedModel.value === 'All') {
+        const models = availableModels.value;
+        const getModelAvg = (m, f) => mean(d.filter(r => r.model === m).map(r => Number(r[f])||0));
+        
+        if (canvasModelTokens.value) {
+          createChart('modelTokens', canvasModelTokens.value, {
+            type: 'bar',
+            data: {
+              labels: models.map(formatModelName),
+              datasets:[
+                { label: 'Avg Prompt', data: models.map(m => getModelAvg(m, 'prompt_tokens')), backgroundColor: hexToRgba(CHART_COLORS[1], 0.8) },
+                { label: 'Avg Completion', data: models.map(m => getModelAvg(m, 'completion_tokens')), backgroundColor: hexToRgba(CHART_COLORS[2], 0.8) }
+              ]
+            },
+            options: getChartOptions({ plugins: { legend: { display: true, labels:{color: '#64748b'} } }})
+          });
+        }
+        
+        if (canvasModelCost.value) {
+          createChart('modelCost', canvasModelCost.value, {
+            type: 'bar',
+            data: {
+              labels: models.map(formatModelName),
+              datasets:[{
+                label: 'Avg Cost (mUSD)', data: models.map(m => getModelAvg(m, 'cost_usd') * 1000),
+                backgroundColor: models.map((_, i) => hexToRgba(CHART_COLORS[i % CHART_COLORS.length], 0.8)), borderRadius: 4
+              }]
+            },
+            options: getChartOptions()
+          });
+        }
+      }
+
+      // 9. Scatter
+      if (canvasScatter.value) {
+        const scatterData = d.filter(r => r.llm_ms && r.total_tokens).map(r => ({
+          x: r.total_tokens,
+          y: r.llm_ms,
+          model: formatModelName(r.model)
+        }));
+        createChart('scatter', canvasScatter.value, {
+          type: 'scatter',
+          data: {
+            datasets:[{
+              label: 'Tokens vs Latency',
+              data: scatterData,
+              backgroundColor: hexToRgba(CHART_COLORS[1], 0.75),
+              pointRadius: 5,
+              pointHoverRadius: 8
+            }]
+          },
+          options: getChartOptions({
+            scales: {
+              x: { title: { display: true, text: 'Total Tokens', color: '#64748b' }, grid: { color: 'rgba(255,255,255,0.03)' } },
+              y: {
+                title: { display: true, text: 'LLM', color: '#64748b' },
+                grid: { color: 'rgba(255,255,255,0.03)' },
+                ticks: { callback: fmtMsTick },
+                beginAtZero: false
+              }
+            },
+            plugins: { tooltip: { callbacks: { label: ctx => `Tokens: ${ctx.raw.x} | LLM: ${fmtMs(ctx.raw.y)} | ${ctx.raw.model}` } } }
+          })
+        });
+      }
+
+      if (canvasThroughput.value) {
+        const unit = grouping.value;
+        const buckets = new Map();
+        for (const r of d) {
+          const t = new Date(r.timestamp||0);
+          let key;
+          if (unit === 'minute') key = new Date(t.getFullYear(), t.getMonth(), t.getDate(), t.getHours(), t.getMinutes()).getTime();
+          else if (unit === 'hour') key = new Date(t.getFullYear(), t.getMonth(), t.getDate(), t.getHours()).getTime();
+          else key = new Date(t.getFullYear(), t.getMonth(), t.getDate()).getTime();
+          buckets.set(key, (buckets.get(key)||0)+1);
+        }
+        const keys = Array.from(buckets.keys()).sort((a,b)=>a-b);
+        const labels = keys.map(k => {
+          const dt = new Date(k);
+          if (unit === 'minute') return fmtTimeHM(dt);
+          if (unit === 'hour') return `${String(dt.getHours()).padStart(2,'0')}:00`;
+          const m = String(dt.getMonth()+1).padStart(2,'0');
+          const d2 = String(dt.getDate()).padStart(2,'0');
+          return `${m}-${d2}`;
+        });
+        const values = keys.map(k => buckets.get(k));
+        createChart('throughput', canvasThroughput.value, {
+          type: 'line',
+          data: { labels, datasets:[{ label:'Requests', data: values, borderColor: CHART_COLORS[5], backgroundColor: hexToRgba(CHART_COLORS[5], 0.1), fill: true, tension: 0.3, pointRadius: 4, pointHoverRadius: 8, pointHitRadius: 12, hitRadius: 12 }]},
+          options: getChartOptions({ elements: { point: { radius: 4, hoverRadius: 8, hitRadius: 12 } } })
+        });
+      }
+
+      if (canvasModelShare.value) {
+        const map = new Map();
+        for (const r of d) {
+          const m = r.model;
+          if (!m) continue;
+          map.set(m, (map.get(m)||0)+1);
+        }
+        const models = Array.from(map.keys());
+        const counts = models.map(m => map.get(m));
+        createChart('modelShare', canvasModelShare.value, {
+          type: 'doughnut',
+          data: { labels: models.map(formatModelName), datasets:[{ data: counts, backgroundColor: models.map((_,i)=>hexToRgba(CHART_COLORS[i%CHART_COLORS.length],0.8)), borderWidth: 0, hoverOffset: 12, hoverBorderWidth: 2, hoverBorderColor: '#ffffff' }]},
+          options: {
+            responsive:true, maintainAspectRatio:false, cutout: '55%',
+            plugins:{
+              legend:{
+                display:true, position:'bottom',
+                labels:{
+                  generateLabels: chart => {
+                    const ds = chart.data.datasets[0] || {};
+                    const data = Array.isArray(ds.data) ? ds.data : [];
+                    const total = data.reduce((a,b)=>a+(+b||0),0) || 1;
+                    const colors = Array.isArray(ds.backgroundColor) ? ds.backgroundColor : [];
+                    return (chart.data.labels || []).map((l,i)=>({
+                      text: `${l} ${(data[i]/total*100).toFixed(1)}%`,
+                      fillStyle: colors[i] || '#999',
+                      strokeStyle: 'transparent',
+                      lineWidth: 0,
+                      hidden: !chart.getDataVisibility(i),
+                      index: i,
+                      fontColor: '#cbd5f5'
+                    }));
+                  }
+                },
+                onClick: (e, item, legend) => {
+                  const ci = legend.chart;
+                  ci.toggleDataVisibility(item.index);
+                  ci.update();
+                }
+              },
+              tooltip: {
+                callbacks: {
+                  label: ctx => {
+                    const data = ctx.dataset.data;
+                    const total = data.reduce((a,b)=>a+(+b||0),0) || 1;
+                    const v = +ctx.parsed || 0;
+                    const pct = (v/total*100).toFixed(1);
+                    return `${ctx.label}: ${v} (${pct}%)`;
+                  }
+                }
+              }
+            },
+            onClick: (evt, elements, chart) => {
+              if (!elements.length) return;
+              const idx = elements[0].index;
+              const m = models[idx];
+              selectedModel.value = m;
+            }
+          }
+        });
+      }
+      // Success vs Failure
+      if (canvasSuccessPie.value) {
+        const succ = successStats.value.success;
+        const fail = successStats.value.failure;
+        createChart('successPie', canvasSuccessPie.value, {
+          type: 'doughnut',
+          data: { labels: ['Success','Failure'], datasets:[{ data: [succ, fail], backgroundColor: [hexToRgba('#10b981',0.8), hexToRgba('#ef4444',0.8)], hoverOffset: 12, hoverBorderWidth: 2, hoverBorderColor: '#ffffff' }] },
+          options: getChartOptions({ plugins:{ legend:{ display:true, labels:{ color:'#64748b' } } }, cutout: '55%' })
+        });
+      }
+      // Error reasons distribution
+      if (canvasErrorReasons.value) {
+        const map2 = new Map();
+        for (const r of d) {
+          const hasImg = !!(r.ui_image_compressed && String(r.ui_image_compressed).length);
+          const err = String(r.error||'').trim();
+          if (!hasImg || err) {
+            const key = err || 'no_image';
+            map2.set(key, (map2.get(key)||0)+1);
+          }
+        }
+        const labels2 = Array.from(map2.keys());
+        const counts2 = labels2.map(k => map2.get(k));
+        createChart('errorReasons', canvasErrorReasons.value, {
+          type: 'doughnut',
+          data: { labels: labels2, datasets:[{ data: counts2, backgroundColor: labels2.map((_,i)=>hexToRgba(CHART_COLORS[i%CHART_COLORS.length],0.8)), hoverOffset: 12, hoverBorderWidth: 2, hoverBorderColor: '#ffffff' }] },
+          options: getChartOptions({ plugins:{ legend:{ display:true, labels:{ color:'#64748b' } } }, cutout: '55%' })
+        });
+      }
+      // 已移除单独的 LLM 失败图表，统一在错误原因分布中体现
+      // Render mode comparisons
+      const modes = ['planner','direct'].filter(m => d.some(r => String(r.render_mode||'').toLowerCase()===m));
+      if (canvasModeShare.value) {
+        const counts = modes.map(m => d.filter(r => String(r.render_mode||'').toLowerCase()===m).length);
+        createChart('modeShare', canvasModeShare.value, {
+          type: 'doughnut',
+          data: { labels: modes, datasets:[{ data: counts, backgroundColor: modes.map((_,i)=>hexToRgba(CHART_COLORS[(i+6)%CHART_COLORS.length],0.8)), hoverOffset: 12, hoverBorderWidth: 2, hoverBorderColor: '#ffffff' }] },
+          options: {
+            responsive:true, maintainAspectRatio:false, cutout: '55%',
+            plugins:{
+              legend:{
+                display:true, position:'bottom',
+                labels:{
+                  generateLabels: chart => {
+                    const ds = chart.data.datasets[0] || {};
+                    const data = Array.isArray(ds.data) ? ds.data : [];
+                    const total = data.reduce((a,b)=>a+(+b||0),0) || 1;
+                    const colors = Array.isArray(ds.backgroundColor) ? ds.backgroundColor : [];
+                    return (chart.data.labels || []).map((l,i)=>({
+                      text: `${l} ${(data[i]/total*100).toFixed(1)}%`,
+                      fillStyle: colors[i] || '#999',
+                      strokeStyle: 'transparent',
+                      lineWidth: 0,
+                      hidden: !chart.getDataVisibility(i),
+                      index: i,
+                      fontColor: '#cbd5f5'
+                    }));
+                  }
+                },
+                onClick: (e, item, legend) => {
+                  const ci = legend.chart;
+                  ci.toggleDataVisibility(item.index);
+                  ci.update();
+                }
+              }
+            }
+          }
+        });
+      }
+      const avgBy = (m, f) => {
+        const arr = d.filter(r => String(r.render_mode||'').toLowerCase()===m).map(r => Number(r[f])||0);
+        return arr.length ? mean(arr) : 0;
+      };
+      if (canvasModeLatency.value) {
+        const vals = modes.map(m => avgBy(m, 'total_ms'));
+        createChart('modeLatency', canvasModeLatency.value, {
+          type: 'bar',
+          data: { labels: modes, datasets:[{ data: vals, backgroundColor: modes.map((_,i)=>hexToRgba(CHART_COLORS[(i+2)%CHART_COLORS.length],0.8)) }] },
+          options: getChartOptions({ scales:{ y:{ ticks:{ callback: fmtMsTick } } } })
+        });
+      }
+      if (canvasModeCost.value) {
+        const vals = modes.map(m => avgBy(m, 'cost_usd'));
+        createChart('modeCost', canvasModeCost.value, {
+          type: 'bar',
+          data: { labels: modes, datasets:[{ data: vals, backgroundColor: modes.map((_,i)=>hexToRgba(CHART_COLORS[(i+3)%CHART_COLORS.length],0.8)) }] },
+          options: getChartOptions({ scales:{ y:{ ticks:{ callback: v => '$'+(+v).toFixed(4) } } } })
+        });
+      }
+      if (canvasModeTokens.value) {
+        const vals = modes.map(m => avgBy(m, 'total_tokens'));
+        createChart('modeTokens', canvasModeTokens.value, {
+          type: 'bar',
+          data: { labels: modes, datasets:[{ data: vals, backgroundColor: modes.map((_,i)=>hexToRgba(CHART_COLORS[(i+4)%CHART_COLORS.length],0.8)) }] },
+          options: getChartOptions()
+        });
+      }
+
+      if (canvasIntentDist.value) {
+        const labels = intentStats.value.labels;
+        const counts = intentStats.value.counts;
+        createChart('intentDist', canvasIntentDist.value, {
+          type: 'doughnut',
+          data: {
+            labels,
+            datasets: [{
+              data: counts,
+              backgroundColor: labels.map((_,i)=>hexToRgba(CHART_COLORS[i%CHART_COLORS.length],0.8)),
+              borderWidth: 0,
+              hoverOffset: 12,
+              hoverBorderWidth: 2,
+              hoverBorderColor: '#ffffff'
+            }]
+          },
+          options: {
+            responsive:true, maintainAspectRatio:false, cutout:'55%',
+            plugins:{
+              legend:{
+                display:true, position:'bottom',
+                labels:{
+                  generateLabels: chart => {
+                    const ds = chart.data.datasets[0] || {};
+                    const data = Array.isArray(ds.data) ? ds.data : [];
+                    const total = data.reduce((a,b)=>a+(+b||0),0) || 1;
+                    const colors = Array.isArray(ds.backgroundColor) ? ds.backgroundColor : [];
+                    return (chart.data.labels || []).map((l,i)=>({
+                      text: `${l} ${(data[i]/total*100).toFixed(1)}%`,
+                      fillStyle: colors[i] || '#999',
+                      strokeStyle: 'transparent',
+                      lineWidth: 0,
+                      hidden: !chart.getDataVisibility(i),
+                      index: i,
+                      fontColor: '#cbd5f5'
+                    }));
+                  }
+                },
+                onClick: (e, item, legend) => {
+                  const ci = legend.chart;
+                  ci.toggleDataVisibility(item.index);
+                  ci.update();
+                }
+              }
+            }
+          }
+        });
+      }
+      if (canvasRatingBar.value) {
+        const labels = ratingDims.map(d => d.label);
+        const vals = ratingDims.map(d => dimAverages.value[d.key] || 0);
+        createChart('ratingBar', canvasRatingBar.value, {
+          type: 'bar',
+          data: { labels, datasets:[{ data: vals, backgroundColor: labels.map((_,i)=>hexToRgba(CHART_COLORS[i%CHART_COLORS.length],0.8)) }]},
+          options: getChartOptions({ scales: { y: { min: 0, max: 5 } } })
+        });
+      }
+      if (canvasRatingRadar.value) {
+        const labels = ratingDims.map(d => d.label);
+        const vals = ratingDims.map(d => dimAverages.value[d.key] || 0);
+        createChart('ratingRadar', canvasRatingRadar.value, {
+          type: 'radar',
+          data: {
+            labels,
+            datasets: [{ data: vals, label: 'Average', borderColor: CHART_COLORS[2], backgroundColor: hexToRgba(CHART_COLORS[2],0.2), pointRadius: 3 }]
+          },
+          options: getChartOptions({ scales: { r: { min: 0, max: 5, ticks: { stepSize: 1, color: '#64748b' }, grid: { color: 'rgba(255,255,255,0.06)' }, angleLines: { color: 'rgba(255,255,255,0.06)' } } }, plugins: { legend: { display: false } } })
+        });
+      }
+
+      if (canvasTokensPerSec.value) {
+        const models = availableModels.value;
+        const tps = models.map(m => {
+          const items = d.filter(r => r.model === m && r.llm_ms > 0);
+          const arr = items.map(r => (Number(r.total_tokens)||0) / (Number(r.llm_ms)||1) * 1000);
+          return mean(arr);
+        });
+        createChart('tpsByModel', canvasTokensPerSec.value, {
+          type:'bar',
+          data:{ labels: models.map(formatModelName), datasets:[{ data: tps, backgroundColor: models.map((_,i)=>hexToRgba(CHART_COLORS[i%CHART_COLORS.length],0.8)) }]},
+          options: getChartOptions()
+        });
+      }
+
+      if (canvasCostHist.value) {
+        const costs = d.map(r => Number(r.cost_usd)||0).filter(v=>v>=0).sort((a,b)=>a-b);
+        const n2 = costs.length || 1;
+        const cdf2 = costs.map((x,i)=>({ x, y: (i+1)/n2 }));
+        const p50c = percentile(costs, 50), p95c = percentile(costs, 95);
+        createChart('costHist', canvasCostHist.value, {
+          type: 'line',
+          data: {
+            datasets:[
+              {
+                label: 'ECDF', data: cdf2,
+                borderColor: CHART_COLORS[3], backgroundColor: hexToRgba(CHART_COLORS[3], 0.12),
+                fill: true, tension: 0.1, pointRadius: 0, parsing: false, xAxisID: 'x', yAxisID: 'y'
+              },
+              {
+                type: 'scatter',
+                label: 'Markers',
+                data: [{x:p50c, y:0.5},{x:p95c, y:0.95}],
+                backgroundColor: hexToRgba('#ffffff',0.9), pointRadius: 4, pointHoverRadius: 6, parsing: false, xAxisID: 'x', yAxisID: 'y'
+              }
+            ]
+          },
+          options: getChartOptions({
+            scales: {
+              x: { type: 'linear', grid: { color: 'rgba(255,255,255,0.03)' }, ticks: { color: '#64748b', callback: fmtCostTick }, title: { display: true, text: 'Cost', color:'#64748b' } },
+              y: { type: 'linear', min: 0, max: 1, grid: { color: 'rgba(255,255,255,0.03)' }, ticks: { color: '#64748b', callback: v => Math.round(v*100)+'%' }, title: { display: true, text: 'Cumulative %', color:'#64748b' } }
+            },
+            plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ctx.dataset.type==='scatter' ? `P${ctx.raw.y*100|0}: ${fmtCost(ctx.raw.x)}` : `≤ ${fmtCost(ctx.parsed.x)}: ${(ctx.parsed.y*100).toFixed(1)}%` } } }
+          })
+        });
+      }
+    };
+
+    return {
+      dataLoaded, isDragging, handleDrop, handleFileSelect,
+      activeTab,
+      backgroundEnabled,
+      rawData, filteredData, availableModels, selectedModel, selectedMode, selectedStatus, summary, modelAverages, maxModelAvg,
+      chartColors: CHART_COLORS,
+      heatmapFields, correlationMatrix,
+      tableColumns, paginatedData, currentPage, totalPages, pageSize,
+      dateStart, dateEnd, searchQuery, latencyMin, latencyMax, grouping, sortBy, sortAsc,
+      canvasLatencyBar, canvasLatencyHist, canvasTimeSeries, canvasStacked, canvasTokenDist,
+      canvasCost, canvasModelTokens, canvasModelCost, canvasScatter,
+      canvasThroughput, canvasModelShare, canvasTokensPerSec, canvasCostHist, canvasIntentDist, canvasRatingRadar, canvasRatingBar,
+      canvasModeShare, canvasModeLatency, canvasModeCost, canvasModeTokens, canvasSuccessPie, canvasErrorReasons,
+      fmtMs, fmtCost, formatNumber, formatModelName, formatField, getHeatmapColor, successStats,
+      resetFilters, exportCSV, toggleSort, downloadChart,
+      intentStats, conversationRows, convPage, convPageSize, convTotalPages, convPaginated, getImageSrc,
+      expandedConv, toggleExpand, viewerSrc, openViewer, closeViewer,
+      getRating, setRating, satisfactionScore, ratingDims, dimAverages, compositeScore, fmtDateTime, truncateText
+    };
+  }
+}).mount('#app');
+</script>
+</body>
+</html>
