@@ -7,7 +7,83 @@
 - 重点：推理代理与 UI 生成模块协同、平台兼容（Web/社交平台）、可解释性与健康合规
 - 受益：提升用户参与度与决策支持，同时与现有平台与医疗约束兼容
 
+## 代码版本目录
+- MVP V0.1 ~ V0.9：早期单文件 UI Agent + Web Demo（FastAPI）
+- WABI-UI V1.0 ~ V1.5：LangGraph 流水线化 UI Agent + Web Demo（FastAPI）
+- WABI-UI V1.6 ~ V2.3：UI 渲染节点库化（`ui_node.py`），并引入评估/指标工具（V2.0+）
+
+## 快速开始
+### Web Demo（MVP V0.1~V0.9 / WABI-UI V1.0~V1.5）
+- 启动（示例以 V1.5 为例）：
+  - `cd "WABI-UI V1.5"`
+  - `python web_demo.py`
+- 默认端口：`http://localhost:8000/`
+- 依赖（按代码引用）：`fastapi`、`uvicorn`、`pydantic`、`python-dotenv`
+- 常用接口：
+  - `POST /api/ui`：主聊天接口（返回 JSON）
+  - `POST /api/reset`：清空服务端聊天记录
+
+### UI Node（WABI-UI V1.6+ / V2.x）
+- 入口：`ui_node(state)`（输出字段通常为 `ui_image_url`）
+- 状态字段（最小集合，按代码读取）：`intent`、`user_input`、`agent_response`、`safety_passed`
+- 渲染模式：环境变量 `WABI_UI_RENDER_MODE=planner|direct`
+- 依赖（按代码引用）：`llm_gateway`（LLM 网关）与 `playwright`（HTML → PNG）
+- 参考：[ui_node.py](https://github.com/ChuNshul/WABI_NTU_Agent_Frontend/WABI-UI%20V2.3/ui_node.py)、[tools.py](https://github.com/ChuNshul/WABI_NTU_Agent_Frontend/WABI-UI%20V2.3/tools.py)
+
+### 指标评估与可视化（WABI-UI V2.0+）
+- 运行基准脚本（示例）：`python benchmark.py`（会生成/追加 `ui_node_metrics.csv`）
+- 打开仪表盘：直接打开 `ui_metrics_dashboard.html`，上传 `ui_node_metrics.csv`
+- 说明：`benchmark.py` 默认从 `langgraph_app.agents.ui_render.ui_node` 导入 `ui_node`，通常需要集成到上游 LangGraph 项目/包结构后运行
+- 参考：[benchmark.py](https://github.com/ChuNshul/WABI_NTU_Agent_Frontend/WABI-UI%20V2.3/benchmark.py)、[ui_metrics_dashboard.html](https://github.com/ChuNshul/WABI_NTU_Agent_Frontend/WABI-UI%20V2.3/ui_metrics_dashboard.html)
+
 ---
+
+## WABI-UI V2.3
+模板优先 + 渲染链路工具化 + 计划类型化
+- 新增：模板直出路径（guardrails/tutorial），避免不必要的 LLM 调用
+  - 参考：[template.py](https://github.com/ChuNshul/WABI_NTU_Agent_Frontend/WABI-UI%20V2.3/template.py)、[ui_node.py](https://github.com/ChuNshul/WABI_NTU_Agent_Frontend/WABI-UI%20V2.3/ui_node.py)
+- 新增：工具函数统一（state 读写、上游序列化、渲染模式选择等），降低调用方耦合
+  - 参考：[tools.py](https://github.com/ChuNshul/WABI_NTU_Agent_Frontend/WABI-UI%20V2.3/tools.py)
+- 优化：Plan 类型层（alias 展开 + 字段收敛），减少 builder 深处的渲染失败
+  - 参考：[plan.py](https://github.com/ChuNshul/WABI_NTU_Agent_Frontend/WABI-UI%20V2.3/plan.py)、[checker.py](https://github.com/ChuNshul/WABI_NTU_Agent_Frontend/WABI-UI%20V2.3/checker.py)
+- 延续：双渲染模式（planner/direct），并记录 token/时延/错误到 CSV 指标
+  - 参考：[planner.py](https://github.com/ChuNshul/WABI_NTU_Agent_Frontend/WABI-UI%20V2.3/planner.py)、[renderer.py](https://github.com/ChuNshul/WABI_NTU_Agent_Frontend/WABI-UI%20V2.3/renderer.py)、[ui_node.py](https://github.com/ChuNshul/WABI_NTU_Agent_Frontend/WABI-UI%20V2.3/ui_node.py)
+
+## WABI-UI V2.2
+组件内置化 + 计划 schema 收敛
+- 新增：组件目录内置为代码常量（替代 `ui_components.json`），避免运行时磁盘 I/O
+  - 参考：[components.py](https://github.com/ChuNshul/WABI_NTU_Agent_Frontend/WABI-UI%20V2.2/components.py)
+- 新增：Plan dataclass（builder 仍可复用 dict 风格 section），提升 IDE 友好与稳定性
+  - 参考：[plan.py](https://github.com/ChuNshul/WABI_NTU_Agent_Frontend/WABI-UI%20V2.2/plan.py)
+- 延续：metrics CSV + 可视化仪表盘
+  - 参考：[ui_metrics_dashboard.html](https://github.com/ChuNshul/WABI_NTU_Agent_Frontend/WABI-UI%20V2.2/ui_metrics_dashboard.html)
+
+## WABI-UI V2.0 / V2.1
+评估闭环与渲染节点化
+- 新增：`ui_node.py` 作为可嵌入的 UI 渲染节点，支持 planner/direct 两种链路
+  - 参考：[ui_node.py](https://github.com/ChuNshul/WABI_NTU_Agent_Frontend/WABI-UI%20V2.0/ui_node.py)
+- 新增：基准测试脚本与指标仪表盘（CSV → 可视化）
+  - 参考：[benchmark.py](https://github.com/ChuNshul/WABI_NTU_Agent_Frontend/WABI-UI%20V2.0/benchmark.py)、[ui_metrics_dashboard.html](https://github.com/ChuNshul/WABI_NTU_Agent_Frontend/WABI-UI%20V2.0/ui_metrics_dashboard.html)
+- 新增：Playwright 渲染器（HTML → PNG data URL），用于评估“生成 UI”的可视化结果
+  - 参考：[renderer.py](https://github.com/ChuNshul/WABI_NTU_Agent_Frontend/WABI-UI%20V2.0/renderer.py)
+
+## WABI-UI V1.6 ~ V1.9
+从 Web Demo 到“可复用节点”的形态迁移
+- 迁移：从 `nodes/*` 拆分形态收敛为 `builder/planner/checker/renderer/ui_node`
+  - 参考：[ui_node.py](https://github.com/ChuNshul/WABI_NTU_Agent_Frontend/WABI-UI%20V1.6/ui_node.py)
+- 新增：Prompt 组织模块（V1.9 引入 `prompter.py`），把组件目录与输出约束聚合在提示构建中
+  - 参考：[prompter.py](https://github.com/ChuNshul/WABI_NTU_Agent_Frontend/WABI-UI%20V1.9/prompter.py)
+
+## WABI-UI V1.1 ~ V1.5
+模板化兜底 + 渲染链路增强 + 可观测性
+- 新增：LLM 配置抽象与流式执行延续（V1.1 起引入 `llm_config.py`）
+  - 参考：[llm_config.py](https://github.com/ChuNshul/WABI_NTU_Agent_Frontend/WABI-UI%20V1.1/llm_config.py)
+- 新增：图像渲染节点（V1.2 引入 `image_renderer.py`，推进“UI → 图片”链路）
+  - 参考：[nodes/image_renderer.py](https://github.com/ChuNshul/WABI_NTU_Agent_Frontend/WABI-UI%20V1.2/nodes/image_renderer.py)
+- 新增：模板兜底与固定网页（V1.4 引入 templates 与 web.html）
+  - 参考：[templates.py](https://github.com/ChuNshul/WABI_NTU_Agent_Frontend/WABI-UI%20V1.4/templates.py)、[web.html](https://github.com/ChuNshul/WABI_NTU_Agent_Frontend/WABI-UI%20V1.4/web.html)
+- 新增：节点级日志与调试能力 + Web Demo（V1.5）
+  - 参考：[nodes/logger.py](https://github.com/ChuNshul/WABI_NTU_Agent_Frontend/WABI-UI%20V1.5/nodes/logger.py)、[web_demo.py](https://github.com/ChuNshul/WABI_NTU_Agent_Frontend/WABI-UI%20V1.5/web_demo.py)
 
 ## WABI-UI V1.0 rc1
 流式处理与用户反馈系统
@@ -117,4 +193,3 @@ Mock 驱动的 UI/UX 快速迭代
 - 平台规范：WeChat/WhatsApp 输出需退化为纯文本并禁用建议项，Web 端可使用全部丰富组件
 - 安全与健康合规：移除潜在不安全脚本、突出高热量/健康风险信息，避免建议不可执行的外部动作
 - 成本可观察：记录与展示 LLM Token 使用，便于后续优化推理与生成成本
-
