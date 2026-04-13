@@ -23,7 +23,7 @@
 
 #### Zero-Shot GUI Gen
 
-![[https://github.com/ChuNshul/WABI_NTU_Agent_Frontend/blob/main/img_for_ref/Zero-Shot.png]]
+![https://github.com/ChuNshul/WABI_NTU_Agent_Frontend/blob/main/img_for_ref/Zero-Shot.png](https://github.com/ChuNshul/WABI_NTU_Agent_Frontend/blob/main/img_for_ref/Zero-Shot.png)
 
 **Abstract**
 - Explores the feasibility of zero-shot prompting for high-fidelity GUI prototype generation, proposing retrieval augmentation and self-critique loops to improve relevance and overall quality.
@@ -47,7 +47,7 @@
 
 #### GUIDE
 
-[https://github.com/ChuNshul/WABI_NTU_Agent_Frontend/blob/main/img_for_ref/GUIDE.png](https://github.com/ChuNshul/WABI_NTU_Agent_Frontend/blob/main/img_for_ref/GUIDE.png)
+![https://github.com/ChuNshul/WABI_NTU_Agent_Frontend/blob/main/img_for_ref/GUIDE.png](https://github.com/ChuNshul/WABI_NTU_Agent_Frontend/blob/main/img_for_ref/GUIDE.png)
 
 **Abstract**
 - Decomposes high-level GUI descriptions into editable fine-grained requirements and retrieves component specs to generate editable Material Design-style prototypes inside Figma, improving controllability and editability.
@@ -65,7 +65,7 @@
 
 #### CrowdGenUI
 
-[https://github.com/ChuNshul/WABI_NTU_Agent_Frontend/blob/main/img_for_ref/CrowdGenUI.png](https://github.com/ChuNshul/WABI_NTU_Agent_Frontend/blob/main/img_for_ref/CrowdGenUI.png)
+![https://github.com/ChuNshul/WABI_NTU_Agent_Frontend/blob/main/img_for_ref/CrowdGenUI.png](https://github.com/ChuNshul/WABI_NTU_Agent_Frontend/blob/main/img_for_ref/CrowdGenUI.png)
 
 **Abstract**
 - Uses crowdsourced UI control preferences to guide LLM reasoning and component selection, aligning generated controls with predictability, efficiency, and explorability.
@@ -82,7 +82,7 @@
 
 #### HumAIne-Chatbot
 
-[https://github.com/ChuNshul/WABI_NTU_Agent_Frontend/blob/main/img_for_ref/HumAIne-Chatbot.png](https://github.com/ChuNshul/WABI_NTU_Agent_Frontend/blob/main/img_for_ref/HumAIne-Chatbot.png)
+![https://github.com/ChuNshul/WABI_NTU_Agent_Frontend/blob/main/img_for_ref/HumAIne-Chatbot.png](https://github.com/ChuNshul/WABI_NTU_Agent_Frontend/blob/main/img_for_ref/HumAIne-Chatbot.png)
 
 **Abstract**
 - Drives dialogue policy with “user profiling + online reinforcement learning,” adapting content and style in real time based on users’ implicit and explicit signals.
@@ -100,7 +100,7 @@
 
 #### Rule-Based AUI
 
-[https://github.com/ChuNshul/WABI_NTU_Agent_Frontend/blob/main/img_for_ref/Rule-Based%20AUI.png](https://github.com/ChuNshul/WABI_NTU_Agent_Frontend/blob/main/img_for_ref/Rule-Based%20AUI.png)
+![https://github.com/ChuNshul/WABI_NTU_Agent_Frontend/blob/main/img_for_ref/Rule-Based%20AUI.png](https://github.com/ChuNshul/WABI_NTU_Agent_Frontend/blob/main/img_for_ref/Rule-Based%20AUI.png)
 
 **Abstract**
 - Builds and evaluates a rule-based, taxonomy-driven adaptive user interface (AUI) prototype for chronic-disease mHealth, aiming to balance usability, transparency, and information load.
@@ -120,7 +120,7 @@
 
 #### DesignCoder
 
-[https://github.com/ChuNshul/WABI_NTU_Agent_Frontend/blob/main/img_for_ref/DesignCoder.png](https://github.com/ChuNshul/WABI_NTU_Agent_Frontend/blob/main/img_for_ref/DesignCoder.png)
+![https://github.com/ChuNshul/WABI_NTU_Agent_Frontend/blob/main/img_for_ref/DesignCoder.png](https://github.com/ChuNshul/WABI_NTU_Agent_Frontend/blob/main/img_for_ref/DesignCoder.png)
 
 **Abstract**
 - Proposes DesignCoder, a hierarchical-aware and self-correcting design-to-code framework that improves visual fidelity, structural similarity, and code quality for React Native generation.
