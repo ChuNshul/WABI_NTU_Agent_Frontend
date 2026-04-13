@@ -23,7 +23,7 @@
 
 #### Zero-Shot GUI Gen
 
-[https://github.com/ChuNshul/WABI_NTU_Agent_Frontend/blob/main/img_for_ref/Zero-Shot.png](https://github.com/ChuNshul/WABI_NTU_Agent_Frontend/blob/main/img_for_ref/Zero-Shot.png)
+![[https://github.com/ChuNshul/WABI_NTU_Agent_Frontend/blob/main/img_for_ref/Zero-Shot.png]]
 
 **Abstract**
 - Explores the feasibility of zero-shot prompting for high-fidelity GUI prototype generation, proposing retrieval augmentation and self-critique loops to improve relevance and overall quality.
