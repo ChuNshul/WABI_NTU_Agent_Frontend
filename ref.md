@@ -141,7 +141,7 @@
 
 #### NeMo Guardrails
 
-![[Pasted image 20260413112053.png]]
+![https://github.com/ChuNshul/WABI_NTU_Agent_Frontend/blob/main/img_for_ref/NeMo%20Guardrails.png](https://github.com/ChuNshul/WABI_NTU_Agent_Frontend/blob/main/img_for_ref/NeMo%20Guardrails.png)
 
 **Abstract**
 - NeMo Guardrails is an open-source toolkit for adding programmable “rails” at runtime to control LLM-based conversational systems, aiming for interpretability and decoupling from the underlying base model (EMNLP 2023 demo).
@@ -162,6 +162,8 @@
 
 #### ChatDev
 
+![https://github.com/ChuNshul/WABI_NTU_Agent_Frontend/blob/main/img_for_ref/ChatDev.png](https://github.com/ChuNshul/WABI_NTU_Agent_Frontend/blob/main/img_for_ref/ChatDev.png)
+
 **Abstract**
 - ChatDev organizes multiple LLM “software agents” into a virtual software company, coordinating end-to-end development via natural-language collaboration across a waterfall-style pipeline (design → code → test → document) to reduce hallucinations and quality risks of one-shot generation.
 
@@ -177,6 +179,8 @@
 
 #### LayoutPrompter
 
+![https://github.com/ChuNshul/WABI_NTU_Agent_Frontend/blob/main/img_for_ref/LayoutPrompter.png](https://github.com/ChuNshul/WABI_NTU_Agent_Frontend/blob/main/img_for_ref/LayoutPrompter.png)
+
 **Abstract**
 - LayoutPrompter unifies conditional layout generation tasks as sequence-to-sequence problems and leverages LLM in-context learning to generate high-quality layouts without training or fine-tuning, improving versatility and data efficiency.
 
@@ -190,6 +194,8 @@
 - Low-data regime: ablations show clear advantages over training-based baselines when exemplar pools are small.
 
 #### Design2Code
+
+![https://github.com/ChuNshul/WABI_NTU_Agent_Frontend/blob/main/img_for_ref/Design2Code.png](https://github.com/ChuNshul/WABI_NTU_Agent_Frontend/blob/main/img_for_ref/Design2Code.png)
 
 **Abstract**
 - Design2Code introduces a real-world benchmark for generating front-end code that renders into a target webpage given a screenshot, to quantify how far multimodal LLMs are from automating front-end engineering.
