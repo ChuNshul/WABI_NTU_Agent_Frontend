@@ -1,0 +1,1278 @@
+[
+  {
+    "id": 1,
+    "intent": "recognition",
+    "user_input": "请识别这份午餐，并概括营养要点，最后给出一个小贴士。",
+    "agent_response": {
+      "detected_foods": [
+        {"name": "Chicken Salad", "calories": 320, "protein_g": 28, "carb_g": 12, "fat_g": 16},
+        {"name": "Apple", "calories": 95, "protein_g": 0.5, "carb_g": 25, "fat_g": 0.3}
+      ],
+      "macro_totals": {"protein_g": 28.5, "carb_g": 37, "fat_g": 16.3, "total_kcal": 415},
+      "risky_nutrients": {"sodium_mg": 540, "sugar_g": 17}
+    }
+  },
+  {
+    "id": 2,
+    "intent": "recommendation",
+    "user_input": "附近有什么健康餐厅？优先素食选项，距离近，先列要点。",
+    "agent_response": {
+      "recommended_restaurants": [
+        {"name": "Green Bowl", "rating": 4.6, "price": "$$", "distance_km": 1.2, "is_veg": true, "cuisine": "Salads", "dishes": [{"name": "Quinoa Bowl", "calories": 430, "is_healthy": true}, {"name": "Caesar Wrap", "calories": 520, "is_healthy": false}]},
+        {"name": "Veggie Way", "rating": 4.4, "price": "$$", "distance_km": 0.9, "is_veg": true, "cuisine": "Fusion", "dishes": [{"name": "Tofu Stir-fry", "calories": 410, "is_healthy": true}]}
+      ],
+      "total_count": 12,
+      "average_rating": 4.3,
+      "cuisine_tags": ["Salads", "Healthy", "Vegan options"]
+    }
+  },
+  {
+    "id": 3,
+    "intent": "chitchat",
+    "user_input": "今天天气不错，适合吃点什么？请用中文简短回答，先问一句话再给建议。",
+    "agent_response": {
+      "final_response": "今天天气挺好，适合选择清爽的餐食。可以考虑一份蔬菜沙拉配上瘦肉蛋白，比如鸡胸肉或豆腐。"
+    }
+  },
+  {
+    "id": 4,
+    "intent": "goalplanning",
+    "user_input": "我想在两个月内减重3公斤，给出目标与下一步行动，最后加一个提醒。",
+    "agent_response": {
+      "goals": {"type": "weight_loss", "target_delta_kg": -3, "timeframe_weeks": 8},
+      "daily_target_kcal": 1800,
+      "next_steps": ["记录每日三餐与零食", "每周至少3次有氧运动30分钟", "控制含糖饮料"],
+      "progress": {"weight_kg": 72.5, "weeks": 0}
+    }
+  },
+  {
+    "id": 5,
+    "intent": "recognition",
+    "user_input": "识别这张图片中的食物，给出宏量营养素占比，并附一句饮食建议。",
+    "agent_response": {
+      "detected_foods": [
+        {"name": "Beef Bowl", "calories": 540, "protein_g": 32, "carb_g": 60, "fat_g": 18},
+        {"name": "Miso Soup", "calories": 40, "protein_g": 3, "carb_g": 5, "fat_g": 1}
+      ],
+      "macro_totals": {"protein_g": 35, "carb_g": 65, "fat_g": 19, "total_kcal": 580},
+      "risky_nutrients": {"sodium_mg": 950, "sugar_g": 6}
+    }
+  },
+  {
+    "id": 6,
+    "intent": "recommendation",
+    "user_input": "Recommend healthy lunch near me, list key points first, then one tip.",
+    "agent_response": {
+      "recommended_restaurants": [
+        {"name": "Lean Kitchen", "rating": 4.5, "price": "$$", "distance_km": 1.0, "is_veg": false, "cuisine": "Grill", "dishes": [{"name": "Grilled Chicken Plate", "calories": 520, "is_healthy": true}]},
+        {"name": "Fresh Wraps", "rating": 4.2, "price": "$", "distance_km": 0.7, "is_veg": false, "cuisine": "Wraps", "dishes": [{"name": "Turkey Avocado Wrap", "calories": 480, "is_healthy": true}]}
+      ],
+      "total_count": 8,
+      "average_rating": 4.2,
+      "cuisine_tags": ["Grill", "Wraps", "Healthy"]
+    }
+  },
+  {
+    "id": 7,
+    "intent": "chitchat",
+    "user_input": "我最近有点累，有没有轻食推荐？请先简短安慰再建议。",
+    "agent_response": {
+      "final_response": "照顾好自己很重要。可以选择燕麦杯配酸奶和水果，轻盈又补充能量。"
+    }
+  },
+  {
+    "id": 8,
+    "intent": "goalplanning",
+    "user_input": "帮我制定增肌计划，包含蛋白目标与具体餐例，最后提醒补水。",
+    "agent_response": {
+      "goals": {"type": "muscle_gain", "target_delta_kg": 2, "timeframe_weeks": 10},
+      "daily_target_kcal": 2300,
+      "protein_target_g": 120,
+      "next_steps": ["每餐包含优质蛋白", "训练后30分钟内补充蛋白", "保持规律作息"],
+      "meal_plans": [{"name": "Lunch", "items": ["Chicken quinoa bowl", "Mixed greens"]}]
+    }
+  },
+  {
+    "id": 9,
+    "intent": "recognition",
+    "user_input": "识别早餐内容，输出统计卡片与一个注意事项。",
+    "agent_response": {
+      "detected_foods": [
+        {"name": "Oatmeal", "calories": 230, "protein_g": 6, "carb_g": 42, "fat_g": 4},
+        {"name": "Banana", "calories": 105, "protein_g": 1.3, "carb_g": 27, "fat_g": 0.4},
+        {"name": "Almonds", "calories": 160, "protein_g": 6, "carb_g": 6, "fat_g": 14}
+      ],
+      "macro_totals": {"protein_g": 13.3, "carb_g": 75, "fat_g": 18.4, "total_kcal": 495},
+      "risky_nutrients": {"sodium_mg": 120, "sugar_g": 19}
+    }
+  },
+  {
+    "id": 10,
+    "intent": "recommendation",
+    "user_input": "想吃川菜，但要清淡一点，先列标准再推荐两家，最后一句提示。",
+    "agent_response": {
+      "recommended_restaurants": [
+        {"name": "Light Sichuan", "rating": 4.3, "price": "$$", "distance_km": 1.8, "is_veg": false, "cuisine": "Sichuan", "dishes": [{"name": "Steamed Fish", "calories": 360, "is_healthy": true}]},
+        {"name": "Spice Balance", "rating": 4.1, "price": "$$", "distance_km": 2.4, "is_veg": false, "cuisine": "Sichuan", "dishes": [{"name": "Mapo Tofu", "calories": 420, "is_healthy": true}]}
+      ],
+      "total_count": 5,
+      "average_rating": 4.2,
+      "cuisine_tags": ["Sichuan", "Light", "Balanced"]
+    }
+  },
+  {
+    "id": 11,
+    "intent": "chitchat",
+    "user_input": "最近在控制糖分，有没有零食建议？先表示理解再给建议。",
+    "agent_response": {
+      "final_response": "很好，控制糖分是有益的。可以尝试希腊酸奶配莓果，或少量坚果。"
+    }
+  },
+  {
+    "id": 12,
+    "intent": "goalplanning",
+    "user_input": "为期四周的作息和饮食规律目标，先列目标，再给每日建议模板。",
+    "agent_response": {
+      "goals": {"type": "habit", "timeframe_weeks": 4, "focus": ["regular_meals", "sleep"]},
+      "daily_target_kcal": 2000,
+      "next_steps": ["固定早餐时间", "晚餐不过饱", "睡前1小时不进食"],
+      "template": {"breakfast": "protein + whole grains", "lunch": "lean protein + vegetables", "dinner": "light carbs + fiber"}
+    }
+  },
+  {
+    "id": 13,
+    "intent": "recognition",
+    "user_input": "识别加班宵夜，列出不健康项并给替代建议。",
+    "agent_response": {
+      "detected_foods": [
+        {"name": "Fried Chicken", "calories": 650, "protein_g": 28, "carb_g": 32, "fat_g": 42},
+        {"name": "Soda", "calories": 150, "protein_g": 0, "carb_g": 39, "fat_g": 0}
+      ],
+      "macro_totals": {"protein_g": 28, "carb_g": 71, "fat_g": 42, "total_kcal": 800},
+      "risky_nutrients": {"sodium_mg": 1100, "sugar_g": 39}
+    }
+  },
+  {
+    "id": 14,
+    "intent": "recommendation",
+    "user_input": "List quick low-cal dinner spots under 2km; start with criteria bullets.",
+    "agent_response": {
+      "recommended_restaurants": [
+        {"name": "Lite Bites", "rating": 4.0, "price": "$", "distance_km": 1.5, "is_veg": false, "cuisine": "Sandwiches", "dishes": [{"name": "Turkey Lettuce Wrap", "calories": 300, "is_healthy": true}]},
+        {"name": "Soup Corner", "rating": 4.1, "price": "$", "distance_km": 0.6, "is_veg": true, "cuisine": "Soups", "dishes": [{"name": "Tomato Basil Soup", "calories": 220, "is_healthy": true}]}
+      ],
+      "total_count": 6,
+      "average_rating": 4.05,
+      "cuisine_tags": ["Soup", "Sandwich", "Light"]
+    }
+  },
+  {
+    "id": 15,
+    "intent": "chitchat",
+    "user_input": "今天有点冷，来点暖胃的建议吧，先问候再建议。",
+    "agent_response": {
+      "final_response": "注意保暖。可以喝一碗热汤，比如蔬菜鸡汤，暖身又低脂。"
+    }
+  },
+  {
+    "id": 16,
+    "intent": "goalplanning",
+    "user_input": "请制定控盐计划，列出每日上限与替代策略，末尾加一句鼓励。",
+    "agent_response": {
+      "goals": {"type": "sodium_control", "limit_mg": 1500, "timeframe_weeks": 6},
+      "next_steps": ["减少酱油和加工食品", "使用香草和柠檬替代盐", "查看营养标签"],
+      "progress": {"baseline_mg": 2300}
+    }
+  },
+  {
+    "id": 17,
+    "intent": "recognition",
+    "user_input": "识别便当，输出每道菜卡路里条形图，最后给一条提示。",
+    "agent_response": {
+      "detected_foods": [
+        {"name": "Teriyaki Chicken", "calories": 520, "protein_g": 30, "carb_g": 55, "fat_g": 14},
+        {"name": "Edamame", "calories": 120, "protein_g": 11, "carb_g": 10, "fat_g": 4},
+        {"name": "Rice", "calories": 210, "protein_g": 4, "carb_g": 46, "fat_g": 0.4}
+      ],
+      "macro_totals": {"protein_g": 45, "carb_g": 111, "fat_g": 18.4, "total_kcal": 850},
+      "risky_nutrients": {"sodium_mg": 800, "sugar_g": 14}
+    }
+  },
+  {
+    "id": 18,
+    "intent": "recommendation",
+    "user_input": "健身后晚餐，优先高蛋白低脂，给要点后推荐两道菜。",
+    "agent_response": {
+      "recommended_restaurants": [
+        {"name": "Protein House", "rating": 4.5, "price": "$$", "distance_km": 1.1, "is_veg": false, "cuisine": "Grill", "dishes": [{"name": "Salmon Plate", "calories": 520, "is_healthy": true}, {"name": "Chicken Breast Salad", "calories": 420, "is_healthy": true}]}
+      ],
+      "total_count": 3,
+      "average_rating": 4.5,
+      "cuisine_tags": ["Grill", "High Protein"]
+    }
+  },
+  {
+    "id": 19,
+    "intent": "chitchat",
+    "user_input": "晚安前想吃点东西，有没有不影响睡眠的轻食？",
+    "agent_response": {
+      "final_response": "可以选择温牛奶或酸奶，配少量全麦饼干，避免高糖高脂食物。"
+    }
+  },
+  {
+    "id": 20,
+    "intent": "goalplanning",
+    "user_input": "帮我设定维持体重的计划，包含每日步数与饮食均衡建议。",
+    "agent_response": {
+      "goals": {"type": "maintenance", "timeframe_weeks": 12},
+      "daily_target_kcal": 2000,
+      "next_steps": ["每日步数8000+", "每餐包含蔬菜和蛋白", "限制甜点频率每周2次以内"]
+    }
+  },
+  {
+    "id": 21,
+    "intent": "recognition",
+    "user_input": "识别这份沙拉并估算卡路里与营养占比，末尾给一条温馨提示。",
+    "agent_response": {
+      "detected_foods": [
+        {"name": "Greek Salad", "calories": 280, "protein_g": 9, "carb_g": 16, "fat_g": 20},
+        {"name": "Whole Grain Bread", "calories": 110, "protein_g": 4, "carb_g": 20, "fat_g": 1.5}
+      ],
+      "macro_totals": {"protein_g": 13, "carb_g": 36, "fat_g": 21.5, "total_kcal": 390},
+      "risky_nutrients": {"sodium_mg": 520, "sugar_g": 6}
+    }
+  },
+  {
+    "id": 22,
+    "intent": "recommendation",
+    "user_input": "寻找低碳水午餐，先列限制条件，再给两家店。",
+    "agent_response": {
+      "recommended_restaurants": [
+        {"name": "LowCarb Deli", "rating": 4.2, "price": "$$", "distance_km": 0.8, "is_veg": false, "cuisine": "Deli", "dishes": [{"name": "Tuna Lettuce Wrap", "calories": 340, "is_healthy": true}]},
+        {"name": "Keto Kitchen", "rating": 4.3, "price": "$$", "distance_km": 1.6, "is_veg": false, "cuisine": "Keto", "dishes": [{"name": "Cauliflower Rice Bowl", "calories": 360, "is_healthy": true}]}
+      ],
+      "total_count": 4,
+      "average_rating": 4.25,
+      "cuisine_tags": ["Low carb", "Keto"]
+    }
+  },
+  {
+    "id": 23,
+    "intent": "chitchat",
+    "user_input": "最近嘴馋想吃甜食，有没有不太罪恶的选择？先给两种。",
+    "agent_response": {
+      "final_response": "可以选择黑巧克力70%以上可可，或水果配无糖酸奶，满足甜口又不过量。"
+    }
+  },
+  {
+    "id": 24,
+    "intent": "goalplanning",
+    "user_input": "为期8周的控糖计划，列目标、每日上限与替代方案。",
+    "agent_response": {
+      "goals": {"type": "sugar_control", "timeframe_weeks": 8, "daily_sugar_limit_g": 30},
+      "next_steps": ["减少含糖饮料", "选择全水果替代果汁", "注意包装食品的隐形糖"],
+      "progress": {"baseline_sugar_g": 55}
+    }
+  },
+  {
+    "id": 25,
+    "intent": "recognition",
+    "user_input": "识别这杯奶茶与配餐，列出热量与风险项。",
+    "agent_response": {
+      "detected_foods": [
+        {"name": "Bubble Milk Tea", "calories": 420, "protein_g": 6, "carb_g": 68, "fat_g": 12},
+        {"name": "Egg Tart", "calories": 180, "protein_g": 3, "carb_g": 18, "fat_g": 11}
+      ],
+      "macro_totals": {"protein_g": 9, "carb_g": 86, "fat_g": 23, "total_kcal": 600},
+      "risky_nutrients": {"sodium_mg": 210, "sugar_g": 54}
+    }
+  },
+  {
+    "id": 26,
+    "intent": "recommendation",
+    "user_input": "工作午休时间短，推荐两家取餐快且相对健康的店。",
+    "agent_response": {
+      "recommended_restaurants": [
+        {"name": "Quick Greens", "rating": 4.0, "price": "$", "distance_km": 0.5, "is_veg": true, "cuisine": "Salads", "dishes": [{"name": "Chickpea Salad", "calories": 350, "is_healthy": true}]},
+        {"name": "Fit Bento", "rating": 4.1, "price": "$$", "distance_km": 1.3, "is_veg": false, "cuisine": "Bento", "dishes": [{"name": "Chicken Veg Bento", "calories": 520, "is_healthy": true}]}
+      ],
+      "total_count": 7,
+      "average_rating": 4.05,
+      "cuisine_tags": ["Quick", "Healthy"]
+    }
+  },
+  {
+    "id": 27,
+    "intent": "chitchat",
+    "user_input": "节假日聚餐容易超量，怎么控制？给三条建议。",
+    "agent_response": {
+      "final_response": "先小份多样化，控制油炸与甜点，多喝水与茶，饭后适度散步辅助消化。"
+    }
+  },
+  {
+    "id": 28,
+    "intent": "goalplanning",
+    "user_input": "制定两周轻断食策略，列出进食窗口与注意事项。",
+    "agent_response": {
+      "goals": {"type": "if", "timeframe_weeks": 2, "window": "12:00-20:00"},
+      "next_steps": ["非进食时段仅饮水或无糖饮品", "进食时优先蛋白和蔬菜", "避免暴饮暴食"]
+    }
+  },
+  {
+    "id": 29,
+    "intent": "recognition",
+    "user_input": "识别运动后加餐，给出蛋白与碳水建议比例。",
+    "agent_response": {
+      "detected_foods": [
+        {"name": "Greek Yogurt", "calories": 150, "protein_g": 15, "carb_g": 10, "fat_g": 3},
+        {"name": "Berries", "calories": 60, "protein_g": 1, "carb_g": 14, "fat_g": 0.3}
+      ],
+      "macro_totals": {"protein_g": 16, "carb_g": 24, "fat_g": 3.3, "total_kcal": 210},
+      "risky_nutrients": {"sodium_mg": 65, "sugar_g": 12}
+    }
+  },
+  {
+    "id": 30,
+    "intent": "recommendation",
+    "user_input": "低预算又健康的午餐选项，两家即可，末尾一句节省小技巧。",
+    "agent_response": {
+      "recommended_restaurants": [
+        {"name": "Budget Bites", "rating": 3.9, "price": "$", "distance_km": 0.4, "is_veg": false, "cuisine": "Bowls", "dishes": [{"name": "Bean Rice Bowl", "calories": 480, "is_healthy": true}]},
+        {"name": "Value Veg", "rating": 4.0, "price": "$", "distance_km": 1.0, "is_veg": true, "cuisine": "Veg", "dishes": [{"name": "Tofu Veg Plate", "calories": 450, "is_healthy": true}]}
+      ],
+      "total_count": 9,
+      "average_rating": 3.95,
+      "cuisine_tags": ["Budget", "Healthy"]
+    }
+  },
+  {
+    "id": 31,
+    "intent": "chitchat",
+    "user_input": "能不能给我一句今天的饮食打气口号？",
+    "agent_response": {
+      "final_response": "每一口更理性，离目标更近一步。"
+    }
+  },
+  {
+    "id": 32,
+    "intent": "goalplanning",
+    "user_input": "制定三周均衡饮食计划，每日包含蛋白、蔬菜、全谷物。",
+    "agent_response": {
+      "goals": {"type": "balanced", "timeframe_weeks": 3},
+      "daily_target_kcal": 2000,
+      "next_steps": ["三餐固定时间", "每餐半盘蔬菜", "优先全谷物"]
+    }
+  },
+  {
+    "id": 33,
+    "intent": "recognition",
+    "user_input": "识别外卖披萨配可乐，列出热量与减少策略。",
+    "agent_response": {
+      "detected_foods": [
+        {"name": "Pepperoni Pizza Slice", "calories": 300, "protein_g": 12, "carb_g": 32, "fat_g": 12},
+        {"name": "Cola", "calories": 140, "protein_g": 0, "carb_g": 39, "fat_g": 0}
+      ],
+      "macro_totals": {"protein_g": 12, "carb_g": 71, "fat_g": 12, "total_kcal": 440},
+      "risky_nutrients": {"sodium_mg": 680, "sugar_g": 39}
+    }
+  },
+  {
+    "id": 34,
+    "intent": "recommendation",
+    "user_input": "周末早午餐清单，偏清淡，先要点后推荐两家。",
+    "agent_response": {
+      "recommended_restaurants": [
+        {"name": "Brunch Lite", "rating": 4.2, "price": "$$", "distance_km": 2.2, "is_veg": false, "cuisine": "Brunch", "dishes": [{"name": "Egg White Omelette", "calories": 260, "is_healthy": true}]},
+        {"name": "Sunny Veg", "rating": 4.4, "price": "$$", "distance_km": 1.7, "is_veg": true, "cuisine": "Veg", "dishes": [{"name": "Avocado Toast", "calories": 320, "is_healthy": true}]}
+      ],
+      "total_count": 5,
+      "average_rating": 4.3,
+      "cuisine_tags": ["Brunch", "Light"]
+    }
+  },
+  {
+    "id": 35,
+    "intent": "chitchat",
+    "user_input": "今天想喝汤，给一个简单选择，先问一句再答。",
+    "agent_response": {
+      "final_response": "今天想要温暖一点吗？番茄蔬菜汤清爽低脂，配全麦面包更均衡。"
+    }
+  },
+  {
+    "id": 36,
+    "intent": "goalplanning",
+    "user_input": "为期6周的高纤维饮食目标，列摄入目标与食物建议。",
+    "agent_response": {
+      "goals": {"type": "fiber", "timeframe_weeks": 6, "daily_fiber_target_g": 30},
+      "next_steps": ["早餐加入燕麦或全麦", "多吃豆类与蔬果", "逐步增加避免肠胃不适"]
+    }
+  },
+  {
+    "id": 37,
+    "intent": "recognition",
+    "user_input": "识别便当里的鱼、菜和饭，给宏量与风险项简报。",
+    "agent_response": {
+      "detected_foods": [
+        {"name": "Grilled Fish", "calories": 360, "protein_g": 32, "carb_g": 0, "fat_g": 22},
+        {"name": "Veg Mix", "calories": 80, "protein_g": 3, "carb_g": 12, "fat_g": 2},
+        {"name": "Rice", "calories": 210, "protein_g": 4, "carb_g": 46, "fat_g": 0.4}
+      ],
+      "macro_totals": {"protein_g": 39, "carb_g": 58, "fat_g": 24.4, "total_kcal": 650},
+      "risky_nutrients": {"sodium_mg": 420, "sugar_g": 6}
+    }
+  },
+  {
+    "id": 38,
+    "intent": "recommendation",
+    "user_input": "晚餐清真与高蛋白优先，简述标准后推荐一家。",
+    "agent_response": {
+      "recommended_restaurants": [
+        {"name": "Halal Grill Fit", "rating": 4.3, "price": "$$", "distance_km": 1.9, "is_veg": false, "cuisine": "Halal", "dishes": [{"name": "Beef Kebab Plate", "calories": 560, "is_healthy": true}]}
+      ],
+      "total_count": 2,
+      "average_rating": 4.3,
+      "cuisine_tags": ["Halal", "High Protein"]
+    }
+  },
+  {
+    "id": 39,
+    "intent": "chitchat",
+    "user_input": "中午没胃口，吃点什么不亏待自己？",
+    "agent_response": {
+      "final_response": "来一碗清淡蔬菜面或鸡丝粥，温和易消化也能补充能量。"
+    }
+  },
+  {
+    "id": 40,
+    "intent": "goalplanning",
+    "user_input": "给我一个3天的简单餐单模板，清晰易执行。",
+    "agent_response": {
+      "goals": {"type": "short_plan", "days": 3},
+      "meal_plans": [
+        {"day": 1, "meals": ["oatmeal + yogurt", "chicken salad", "fish + veg"]},
+        {"day": 2, "meals": ["eggs + toast", "turkey wrap", "tofu stir-fry"]},
+        {"day": 3, "meals": ["smoothie", "quinoa bowl", "soup + bread"]}
+      ]
+    }
+  },
+  {
+    "id": 41,
+    "intent": "recognition",
+    "user_input": "识别一份牛排配蔬菜与土豆泥，输出热量与宏量占比。",
+    "agent_response": {
+      "detected_foods": [
+        {"name": "Steak", "calories": 520, "protein_g": 42, "carb_g": 0, "fat_g": 36},
+        {"name": "Mashed Potato", "calories": 200, "protein_g": 4, "carb_g": 35, "fat_g": 5},
+        {"name": "Veggies", "calories": 60, "protein_g": 3, "carb_g": 10, "fat_g": 1}
+      ],
+      "macro_totals": {"protein_g": 49, "carb_g": 45, "fat_g": 42, "total_kcal": 780},
+      "risky_nutrients": {"sodium_mg": 700, "sugar_g": 7}
+    }
+  },
+  {
+    "id": 42,
+    "intent": "recommendation",
+    "user_input": "低脂海鲜选项，两家店即可，先列标准。",
+    "agent_response": {
+      "recommended_restaurants": [
+        {"name": "Sea Light", "rating": 4.1, "price": "$$", "distance_km": 2.0, "is_veg": false, "cuisine": "Seafood", "dishes": [{"name": "Steamed Fish Set", "calories": 380, "is_healthy": true}]},
+        {"name": "Shrimp Fit", "rating": 4.2, "price": "$$", "distance_km": 1.5, "is_veg": false, "cuisine": "Seafood", "dishes": [{"name": "Shrimp Salad", "calories": 320, "is_healthy": true}]}
+      ],
+      "total_count": 4,
+      "average_rating": 4.15,
+      "cuisine_tags": ["Seafood", "Low fat"]
+    }
+  },
+  {
+    "id": 43,
+    "intent": "chitchat",
+    "user_input": "最近压力大，有没有舒缓的午餐建议？",
+    "agent_response": {
+      "final_response": "选择温热的清汤面或鸡肉蔬菜粥，搭配一份水果，让身体轻松些。"
+    }
+  },
+  {
+    "id": 44,
+    "intent": "goalplanning",
+    "user_input": "帮我制定一个简易的周末备餐计划，列核心思路。",
+    "agent_response": {
+      "goals": {"type": "meal_prep", "timeframe_weeks": 1},
+      "next_steps": ["批量烤鸡胸与蔬菜", "准备糙米与藜麦", "分装健康零食"]
+    }
+  },
+  {
+    "id": 45,
+    "intent": "recognition",
+    "user_input": "识别水果拼盘，列出糖分与卡路里，并给一条建议。",
+    "agent_response": {
+      "detected_foods": [
+        {"name": "Watermelon", "calories": 85, "protein_g": 1.7, "carb_g": 21, "fat_g": 0.4},
+        {"name": "Kiwi", "calories": 60, "protein_g": 1.1, "carb_g": 15, "fat_g": 0.5},
+        {"name": "Grapes", "calories": 70, "protein_g": 0.6, "carb_g": 18, "fat_g": 0.2}
+      ],
+      "macro_totals": {"protein_g": 3.4, "carb_g": 54, "fat_g": 1.1, "total_kcal": 215},
+      "risky_nutrients": {"sugar_g": 45, "sodium_mg": 20}
+    }
+  },
+  {
+    "id": 46,
+    "intent": "recommendation",
+    "user_input": "奶素可选的清淡餐厅，步行10分钟内，先列条件。",
+    "agent_response": {
+      "recommended_restaurants": [
+        {"name": "Mild Veg", "rating": 4.0, "price": "$$", "distance_km": 0.8, "is_veg": true, "cuisine": "Vegetarian", "dishes": [{"name": "Paneer Salad", "calories": 420, "is_healthy": true}]},
+        {"name": "Green Spoon", "rating": 4.1, "price": "$$", "distance_km": 1.1, "is_veg": true, "cuisine": "Vegetarian", "dishes": [{"name": "Mixed Veg Plate", "calories": 390, "is_healthy": true}]}
+      ],
+      "total_count": 3,
+      "average_rating": 4.05,
+      "cuisine_tags": ["Vegetarian", "Light"]
+    }
+  },
+  {
+    "id": 47,
+    "intent": "chitchat",
+    "user_input": "中午只想喝饮品，有什么不太升糖的选择？",
+    "agent_response": {
+      "final_response": "选择无糖茶饮、黑咖啡或苏打水加柠檬，避免加糖和奶精。"
+    }
+  },
+  {
+    "id": 48,
+    "intent": "goalplanning",
+    "user_input": "两周减少外卖频率的计划，给执行清单。",
+    "agent_response": {
+      "goals": {"type": "reduce_takeout", "timeframe_weeks": 2},
+      "next_steps": ["周末批量备菜", "工作日带饭2-3次", "减少深夜外卖"]
+    }
+  },
+  {
+    "id": 49,
+    "intent": "recognition",
+    "user_input": "识别一份素食便当，给出蛋白补充建议。",
+    "agent_response": {
+      "detected_foods": [
+        {"name": "Tofu Stir-fry", "calories": 380, "protein_g": 22, "carb_g": 20, "fat_g": 22},
+        {"name": "Brown Rice", "calories": 200, "protein_g": 5, "carb_g": 44, "fat_g": 1.6}
+      ],
+      "macro_totals": {"protein_g": 27, "carb_g": 64, "fat_g": 23.6, "total_kcal": 580},
+      "risky_nutrients": {"sodium_mg": 720, "sugar_g": 8}
+    }
+  },
+  {
+    "id": 50,
+    "intent": "recommendation",
+    "user_input": "办公室附近暖汤类推荐，列两家，附上热量信息。",
+    "agent_response": {
+      "recommended_restaurants": [
+        {"name": "Broth Bar", "rating": 4.1, "price": "$", "distance_km": 0.6, "is_veg": true, "cuisine": "Soup", "dishes": [{"name": "Chicken Veg Soup", "calories": 180, "is_healthy": true}]},
+        {"name": "Light Bowl", "rating": 4.0, "price": "$", "distance_km": 0.9, "is_veg": false, "cuisine": "Soup", "dishes": [{"name": "Miso Tofu Soup", "calories": 90, "is_healthy": true}]}
+      ],
+      "total_count": 4,
+      "average_rating": 4.05,
+      "cuisine_tags": ["Soup", "Light"]
+    }
+  },
+  {
+    "id": 51,
+    "intent": "recognition",
+    "user_input": "识别健康便当，输出卡路里环与宏量图简报。",
+    "agent_response": {
+      "detected_foods": [
+        {"name": "Turkey Breast", "calories": 220, "protein_g": 32, "carb_g": 0, "fat_g": 7},
+        {"name": "Quinoa", "calories": 200, "protein_g": 7, "carb_g": 39, "fat_g": 3.5},
+        {"name": "Steamed Veg", "calories": 60, "protein_g": 3, "carb_g": 10, "fat_g": 0.5}
+      ],
+      "macro_totals": {"protein_g": 42, "carb_g": 49, "fat_g": 11, "total_kcal": 480},
+      "risky_nutrients": {"sodium_mg": 450, "sugar_g": 7}
+    }
+  },
+  {
+    "id": 52,
+    "intent": "recommendation",
+    "user_input": "跑步后补餐，优先蛋白与全谷物，给两家店与一道主推菜。",
+    "agent_response": {
+      "recommended_restaurants": [
+        {"name": "Runner's Kitchen", "rating": 4.4, "price": "$$", "distance_km": 1.3, "is_veg": false, "cuisine": "Bowls", "dishes": [{"name": "Turkey Quinoa Bowl", "calories": 520, "is_healthy": true}]},
+        {"name": "Whole Grain Hub", "rating": 4.1, "price": "$$", "distance_km": 1.9, "is_veg": true, "cuisine": "Grain", "dishes": [{"name": "Barley Veg Bowl", "calories": 480, "is_healthy": true}]}
+      ],
+      "total_count": 5,
+      "average_rating": 4.25,
+      "cuisine_tags": ["Grain", "Protein"]
+    }
+  },
+  {
+    "id": 53,
+    "intent": "chitchat",
+    "user_input": "我下午犯困，来杯饮品，有什么更清爽的选择？",
+    "agent_response": {
+      "final_response": "可以选择柠檬苏打水或无糖绿茶，清爽解腻又不增加负担。"
+    }
+  },
+  {
+    "id": 54,
+    "intent": "goalplanning",
+    "user_input": "制定三周补水与蔬果摄入目标，附每日执行检查表。",
+    "agent_response": {
+      "goals": {"type": "hydration_fruit", "timeframe_weeks": 3, "daily_water_l": 2, "fruit_servings": 2},
+      "next_steps": ["起床后先喝水", "随身携带水杯", "每餐加一份蔬果"],
+      "checklist": ["喝水打卡", "蔬果份数"]
+    }
+  },
+  {
+    "id": 55,
+    "intent": "recognition",
+    "user_input": "识别一份韩式拌饭，输出卡路里条形图与注意点。",
+    "agent_response": {
+      "detected_foods": [
+        {"name": "Bibimbap", "calories": 620, "protein_g": 22, "carb_g": 90, "fat_g": 16}
+      ],
+      "macro_totals": {"protein_g": 22, "carb_g": 90, "fat_g": 16, "total_kcal": 620},
+      "risky_nutrients": {"sodium_mg": 980, "sugar_g": 10}
+    }
+  },
+  {
+    "id": 56,
+    "intent": "recommendation",
+    "user_input": "清淡日式餐厅推荐，先列要点，再给两家。",
+    "agent_response": {
+      "recommended_restaurants": [
+        {"name": "Light Bento", "rating": 4.2, "price": "$$", "distance_km": 1.4, "is_veg": false, "cuisine": "Japanese", "dishes": [{"name": "Grilled Mackerel Bento", "calories": 520, "is_healthy": true}]},
+        {"name": "Zen Sushi", "rating": 4.3, "price": "$$", "distance_km": 2.1, "is_veg": false, "cuisine": "Japanese", "dishes": [{"name": "Sashimi Set", "calories": 360, "is_healthy": true}]}
+      ],
+      "total_count": 6,
+      "average_rating": 4.25,
+      "cuisine_tags": ["Japanese", "Light"]
+    }
+  },
+  {
+    "id": 57,
+    "intent": "chitchat",
+    "user_input": "午间嘴馋想吃点脆的，有更健康的选择吗？",
+    "agent_response": {
+      "final_response": "可以尝试烤鹰嘴豆或无盐坚果，酥脆口感但更健康。"
+    }
+  },
+  {
+    "id": 58,
+    "intent": "goalplanning",
+    "user_input": "四周减少油炸食品的计划，列具体替代方案。",
+    "agent_response": {
+      "goals": {"type": "reduce_fried", "timeframe_weeks": 4},
+      "next_steps": ["空气炸或烤制替代油炸", "选择蒸煮焯拌", "外卖备注少油"]
+    }
+  },
+  {
+    "id": 59,
+    "intent": "recognition",
+    "user_input": "识别甜品盘，输出糖分警示与替代建议。",
+    "agent_response": {
+      "detected_foods": [
+        {"name": "Cheesecake", "calories": 410, "protein_g": 7, "carb_g": 34, "fat_g": 28},
+        {"name": "Macaron", "calories": 95, "protein_g": 2, "carb_g": 10, "fat_g": 5}
+      ],
+      "macro_totals": {"protein_g": 9, "carb_g": 44, "fat_g": 33, "total_kcal": 505},
+      "risky_nutrients": {"sugar_g": 38, "sodium_mg": 220}
+    }
+  },
+  {
+    "id": 60,
+    "intent": "recommendation",
+    "user_input": "公司附近适合开会简餐的地方，健康优先，两家即可。",
+    "agent_response": {
+      "recommended_restaurants": [
+        {"name": "Meeting Bowls", "rating": 4.0, "price": "$$", "distance_km": 0.7, "is_veg": false, "cuisine": "Bowls", "dishes": [{"name": "Chicken Veg Bowl", "calories": 520, "is_healthy": true}]},
+        {"name": "Calm Cafe", "rating": 4.2, "price": "$$", "distance_km": 1.5, "is_veg": true, "cuisine": "Cafe", "dishes": [{"name": "Whole Grain Sandwich", "calories": 420, "is_healthy": true}]}
+      ],
+      "total_count": 4,
+      "average_rating": 4.1,
+      "cuisine_tags": ["Bowls", "Cafe"]
+    }
+  },
+  {
+    "id": 61,
+    "intent": "recognition",
+    "user_input": "识别学生食堂午餐，给出便宜又健康的调整建议。",
+    "agent_response": {
+      "detected_foods": [
+        {"name": "Stir-fry Pork", "calories": 460, "protein_g": 25, "carb_g": 20, "fat_g": 28},
+        {"name": "Rice", "calories": 210, "protein_g": 4, "carb_g": 46, "fat_g": 0.4},
+        {"name": "Veg Mix", "calories": 80, "protein_g": 3, "carb_g": 12, "fat_g": 2}
+      ],
+      "macro_totals": {"protein_g": 32, "carb_g": 78, "fat_g": 30.4, "total_kcal": 750},
+      "risky_nutrients": {"sodium_mg": 900, "sugar_g": 10}
+    }
+  },
+  {
+    "id": 62,
+    "intent": "recommendation",
+    "user_input": "校门口附近低糖饮品店，列两家，附推荐饮品。",
+    "agent_response": {
+      "recommended_restaurants": [
+        {"name": "Tea Lite", "rating": 4.1, "price": "$", "distance_km": 0.3, "is_veg": true, "cuisine": "Tea", "dishes": [{"name": "Unsweetened Oolong", "calories": 0, "is_healthy": true}]},
+        {"name": "Brew Bar", "rating": 4.0, "price": "$", "distance_km": 0.5, "is_veg": true, "cuisine": "Coffee", "dishes": [{"name": "Black Coffee", "calories": 0, "is_healthy": true}]}
+      ],
+      "total_count": 3,
+      "average_rating": 4.05,
+      "cuisine_tags": ["Tea", "Coffee"]
+    }
+  },
+  {
+    "id": 63,
+    "intent": "chitchat",
+    "user_input": "晚上不太饿，给一个简单轻食点子。",
+    "agent_response": {
+      "final_response": "一碗蔬菜鸡蛋汤或牛油果吐司，轻松不负担。"
+    }
+  },
+  {
+    "id": 64,
+    "intent": "goalplanning",
+    "user_input": "新学期的饮食与作息目标，列三条并给每日提醒。",
+    "agent_response": {
+      "goals": {"type": "semester", "timeframe_weeks": 16},
+      "next_steps": ["早餐不缺席", "每天饮水2升", "每周运动3次"],
+      "reminder": "每日检查打卡"
+    }
+  },
+  {
+    "id": 65,
+    "intent": "recognition",
+    "user_input": "识别一份汉堡套餐，输出热量警示与更好选择。",
+    "agent_response": {
+      "detected_foods": [
+        {"name": "Beef Burger", "calories": 560, "protein_g": 28, "carb_g": 40, "fat_g": 32},
+        {"name": "Fries", "calories": 330, "protein_g": 4, "carb_g": 45, "fat_g": 15},
+        {"name": "Soda", "calories": 150, "protein_g": 0, "carb_g": 39, "fat_g": 0}
+      ],
+      "macro_totals": {"protein_g": 32, "carb_g": 124, "fat_g": 47, "total_kcal": 1040},
+      "risky_nutrients": {"sodium_mg": 1300, "sugar_g": 39}
+    }
+  },
+  {
+    "id": 66,
+    "intent": "recommendation",
+    "user_input": "如果我想吃面，清淡优先，有哪些店？",
+    "agent_response": {
+      "recommended_restaurants": [
+        {"name": "Noodle Light", "rating": 4.0, "price": "$", "distance_km": 1.0, "is_veg": false, "cuisine": "Noodles", "dishes": [{"name": "Chicken Veg Noodle", "calories": 420, "is_healthy": true}]},
+        {"name": "Herb Noodle", "rating": 4.2, "price": "$$", "distance_km": 1.8, "is_veg": true, "cuisine": "Noodles", "dishes": [{"name": "Mushroom Noodle", "calories": 380, "is_healthy": true}]}
+      ],
+      "total_count": 4,
+      "average_rating": 4.1,
+      "cuisine_tags": ["Noodles", "Light"]
+    }
+  },
+  {
+    "id": 67,
+    "intent": "chitchat",
+    "user_input": "我今天有点嗓子不舒服，吃什么会好一点？",
+    "agent_response": {
+      "final_response": "选择温热的清汤、蒸蛋或软糯米粥，避免辛辣与过烫饮品。"
+    }
+  },
+  {
+    "id": 68,
+    "intent": "goalplanning",
+    "user_input": "两周早睡早起计划，配合简单饮食建议。",
+    "agent_response": {
+      "goals": {"type": "sleep_schedule", "timeframe_weeks": 2},
+      "next_steps": ["固定上床与起床时间", "晚8点后不摄入咖啡因", "晚餐清淡"]
+    }
+  },
+  {
+    "id": 69,
+    "intent": "recognition",
+    "user_input": "识别寿司拼盘，给出热量简表与注意事项。",
+    "agent_response": {
+      "detected_foods": [
+        {"name": "Salmon Nigiri", "calories": 60, "protein_g": 4, "carb_g": 7, "fat_g": 2},
+        {"name": "Tuna Roll", "calories": 180, "protein_g": 12, "carb_g": 24, "fat_g": 4},
+        {"name": "Avocado Roll", "calories": 160, "protein_g": 3, "carb_g": 22, "fat_g": 7}
+      ],
+      "macro_totals": {"protein_g": 19, "carb_g": 53, "fat_g": 13, "total_kcal": 400},
+      "risky_nutrients": {"sodium_mg": 820, "sugar_g": 6}
+    }
+  },
+  {
+    "id": 70,
+    "intent": "recommendation",
+    "user_input": "低油炒菜馆，步行可达，推荐一家即可，附一道菜。",
+    "agent_response": {
+      "recommended_restaurants": [
+        {"name": "Stir Lite", "rating": 4.0, "price": "$", "distance_km": 0.9, "is_veg": false, "cuisine": "Chinese", "dishes": [{"name": "Stir-fried Veg Mix", "calories": 220, "is_healthy": true}]}
+      ],
+      "total_count": 1,
+      "average_rating": 4.0,
+      "cuisine_tags": ["Chinese", "Light oil"]
+    }
+  },
+  {
+    "id": 71,
+    "intent": "chitchat",
+    "user_input": "运动前一小时可以吃什么？给两种选择。",
+    "agent_response": {
+      "final_response": "香蕉配酸奶或全麦面包抹果酱，提供快速能量又不负担。"
+    }
+  },
+  {
+    "id": 72,
+    "intent": "goalplanning",
+    "user_input": "一个月内逐步减少含糖饮料，给阶段目标。",
+    "agent_response": {
+      "goals": {"type": "reduce_sugary_drinks", "timeframe_weeks": 4},
+      "next_steps": ["第1周将含糖饮料减半", "第2周改为无糖茶饮", "第3-4周维持与巩固"]
+    }
+  },
+  {
+    "id": 73,
+    "intent": "recognition",
+    "user_input": "识别牛肉粉，列出卡路里与钠含量，并做提醒。",
+    "agent_response": {
+      "detected_foods": [
+        {"name": "Beef Noodle Soup", "calories": 620, "protein_g": 28, "carb_g": 72, "fat_g": 18}
+      ],
+      "macro_totals": {"protein_g": 28, "carb_g": 72, "fat_g": 18, "total_kcal": 620},
+      "risky_nutrients": {"sodium_mg": 1400, "sugar_g": 8}
+    }
+  },
+  {
+    "id": 74,
+    "intent": "recommendation",
+    "user_input": "请推荐两家适合素食朋友的亚洲餐厅，步行范围内。",
+    "agent_response": {
+      "recommended_restaurants": [
+        {"name": "Veg Asia", "rating": 4.2, "price": "$$", "distance_km": 1.0, "is_veg": true, "cuisine": "Asian", "dishes": [{"name": "Tofu Rice Bowl", "calories": 480, "is_healthy": true}]},
+        {"name": "Green Lotus", "rating": 4.3, "price": "$$", "distance_km": 1.5, "is_veg": true, "cuisine": "Asian", "dishes": [{"name": "Veggie Pho", "calories": 420, "is_healthy": true}]}
+      ],
+      "total_count": 4,
+      "average_rating": 4.25,
+      "cuisine_tags": ["Asian", "Vegetarian"]
+    }
+  },
+  {
+    "id": 75,
+    "intent": "chitchat",
+    "user_input": "早上起得晚，吃什么当早午餐更合适？",
+    "agent_response": {
+      "final_response": "蛋白煎饼配牛油果和水果，营养均衡也不太油腻。"
+    }
+  },
+  {
+    "id": 76,
+    "intent": "goalplanning",
+    "user_input": "制定一个读标签的习惯培养计划，列关键点。",
+    "agent_response": {
+      "goals": {"type": "label_reading", "timeframe_weeks": 3},
+      "next_steps": ["关注糖与钠含量", "选择全谷物与高纤维", "避免反式脂肪"]
+    }
+  },
+  {
+    "id": 77,
+    "intent": "recognition",
+    "user_input": "识别凉皮、卤蛋与黄瓜，列热量与建议。",
+    "agent_response": {
+      "detected_foods": [
+        {"name": "Liangpi", "calories": 420, "protein_g": 10, "carb_g": 80, "fat_g": 8},
+        {"name": "Egg", "calories": 70, "protein_g": 6, "carb_g": 0.6, "fat_g": 5},
+        {"name": "Cucumber", "calories": 15, "protein_g": 0.6, "carb_g": 3.6, "fat_g": 0.1}
+      ],
+      "macro_totals": {"protein_g": 16.6, "carb_g": 84.2, "fat_g": 13.1, "total_kcal": 505},
+      "risky_nutrients": {"sodium_mg": 780, "sugar_g": 7}
+    }
+  },
+  {
+    "id": 78,
+    "intent": "recommendation",
+    "user_input": "带父母吃饭，口味清淡与低盐优先，推荐两家。",
+    "agent_response": {
+      "recommended_restaurants": [
+        {"name": "Gentle Taste", "rating": 4.3, "price": "$$", "distance_km": 1.6, "is_veg": false, "cuisine": "Chinese", "dishes": [{"name": "Steamed Veg Set", "calories": 260, "is_healthy": true}]},
+        {"name": "Home Light", "rating": 4.2, "price": "$$", "distance_km": 1.2, "is_veg": false, "cuisine": "Chinese", "dishes": [{"name": "Poached Chicken", "calories": 320, "is_healthy": true}]}
+      ],
+      "total_count": 4,
+      "average_rating": 4.25,
+      "cuisine_tags": ["Chinese", "Low sodium"]
+    }
+  },
+  {
+    "id": 79,
+    "intent": "chitchat",
+    "user_input": "期末周了，给我一个提神不心慌的小点子。",
+    "agent_response": {
+      "final_response": "无糖美式配一小把坚果，提神又不太刺激。"
+    }
+  },
+  {
+    "id": 80,
+    "intent": "goalplanning",
+    "user_input": "制定两周的规律早餐计划，列可选搭配。",
+    "agent_response": {
+      "goals": {"type": "breakfast_habit", "timeframe_weeks": 2},
+      "next_steps": ["全谷物+蛋白+水果", "固定时间用餐", "前一晚备好食材"],
+      "options": ["燕麦+酸奶+莓果", "鸡蛋+全麦吐司+牛油果", "豆浆+杂粮饼"]
+    }
+  },
+  {
+    "id": 81,
+    "intent": "recognition",
+    "user_input": "识别节日大餐的一盘菜，给简要健康评分。",
+    "agent_response": {
+      "detected_foods": [
+        {"name": "Roast Turkey", "calories": 450, "protein_g": 45, "carb_g": 0, "fat_g": 28},
+        {"name": "Stuffing", "calories": 220, "protein_g": 6, "carb_g": 30, "fat_g": 8},
+        {"name": "Green Beans", "calories": 60, "protein_g": 2, "carb_g": 7, "fat_g": 2}
+      ],
+      "macro_totals": {"protein_g": 53, "carb_g": 37, "fat_g": 38, "total_kcal": 730},
+      "risky_nutrients": {"sodium_mg": 980, "sugar_g": 8}
+    }
+  },
+  {
+    "id": 82,
+    "intent": "recommendation",
+    "user_input": "朋友来访，想体验多国菜但健康优先，推荐两家。",
+    "agent_response": {
+      "recommended_restaurants": [
+        {"name": "Global Lite", "rating": 4.1, "price": "$$", "distance_km": 2.3, "is_veg": false, "cuisine": "Fusion", "dishes": [{"name": "Mediterranean Bowl", "calories": 520, "is_healthy": true}]},
+        {"name": "World Veg", "rating": 4.3, "price": "$$", "distance_km": 1.9, "is_veg": true, "cuisine": "Fusion", "dishes": [{"name": "Veg Mezze", "calories": 480, "is_healthy": true}]}
+      ],
+      "total_count": 5,
+      "average_rating": 4.2,
+      "cuisine_tags": ["Fusion", "Healthy"]
+    }
+  },
+  {
+    "id": 83,
+    "intent": "chitchat",
+    "user_input": "今天想吃辣，又怕上火，有折中方案吗？",
+    "agent_response": {
+      "final_response": "可以选择微辣的清汤粉或麻辣烫少油版，搭配蔬菜多一些。"
+    }
+  },
+  {
+    "id": 84,
+    "intent": "goalplanning",
+    "user_input": "制定两周的高钙饮食目标与来源清单。",
+    "agent_response": {
+      "goals": {"type": "calcium", "timeframe_weeks": 2, "daily_calcium_mg": 1000},
+      "next_steps": ["每日奶制品或替代品", "多吃深色叶菜与豆制品", "适量坚果种子"]
+    }
+  },
+  {
+    "id": 85,
+    "intent": "recognition",
+    "user_input": "识别一份家常小炒，给出能量与油脂估算。",
+    "agent_response": {
+      "detected_foods": [
+        {"name": "Home Stir-fry", "calories": 420, "protein_g": 20, "carb_g": 28, "fat_g": 24}
+      ],
+      "macro_totals": {"protein_g": 20, "carb_g": 28, "fat_g": 24, "total_kcal": 420},
+      "risky_nutrients": {"sodium_mg": 860, "sugar_g": 7}
+    }
+  },
+  {
+    "id": 86,
+    "intent": "recommendation",
+    "user_input": "清真、低油、适合老人，步行范围内推荐一家。",
+    "agent_response": {
+      "recommended_restaurants": [
+        {"name": "Halal Gentle", "rating": 4.1, "price": "$$", "distance_km": 1.2, "is_veg": false, "cuisine": "Halal", "dishes": [{"name": "Stewed Beef Lite", "calories": 500, "is_healthy": true}]}
+      ],
+      "total_count": 1,
+      "average_rating": 4.1,
+      "cuisine_tags": ["Halal", "Light oil"]
+    }
+  },
+  {
+    "id": 87,
+    "intent": "chitchat",
+    "user_input": "午后茶歇，来个健康小食点子吧。",
+    "agent_response": {
+      "final_response": "无糖酸奶配坚果碎或全麦饼干两片，轻盈又满足。"
+    }
+  },
+  {
+    "id": 88,
+    "intent": "goalplanning",
+    "user_input": "制定一周减少零食的计划，给可行替代方案。",
+    "agent_response": {
+      "goals": {"type": "snack_control", "timeframe_weeks": 1},
+      "next_steps": ["备好低糖水果", "用坚果替代糖果", "喝水分散注意力"]
+    }
+  },
+  {
+    "id": 89,
+    "intent": "recognition",
+    "user_input": "识别一份泰式炒粉，给出能量与钠建议。",
+    "agent_response": {
+      "detected_foods": [
+        {"name": "Pad Thai", "calories": 690, "protein_g": 24, "carb_g": 95, "fat_g": 22}
+      ],
+      "macro_totals": {"protein_g": 24, "carb_g": 95, "fat_g": 22, "total_kcal": 690},
+      "risky_nutrients": {"sodium_mg": 1200, "sugar_g": 16}
+    }
+  },
+  {
+    "id": 90,
+    "intent": "recommendation",
+    "user_input": "加班到很晚，想吃点不太油腻的宵夜，推荐两家。",
+    "agent_response": {
+      "recommended_restaurants": [
+        {"name": "Night Lite", "rating": 4.0, "price": "$", "distance_km": 0.8, "is_veg": true, "cuisine": "Light meals", "dishes": [{"name": "Tofu Veg Bowl", "calories": 420, "is_healthy": true}]},
+        {"name": "Late Soup", "rating": 4.1, "price": "$", "distance_km": 1.4, "is_veg": true, "cuisine": "Soup", "dishes": [{"name": "Chicken Broth", "calories": 120, "is_healthy": true}]}
+      ],
+      "total_count": 3,
+      "average_rating": 4.05,
+      "cuisine_tags": ["Light", "Soup"]
+    }
+  },
+  {
+    "id": 91,
+    "intent": "recognition",
+    "user_input": "识别素食卷饼和沙拉，给宏量与能量建议。",
+    "agent_response": {
+      "detected_foods": [
+        {"name": "Veg Wrap", "calories": 380, "protein_g": 14, "carb_g": 52, "fat_g": 12},
+        {"name": "Side Salad", "calories": 90, "protein_g": 3, "carb_g": 10, "fat_g": 4}
+      ],
+      "macro_totals": {"protein_g": 17, "carb_g": 62, "fat_g": 16, "total_kcal": 470},
+      "risky_nutrients": {"sodium_mg": 540, "sugar_g": 9}
+    }
+  },
+  {
+    "id": 92,
+    "intent": "recommendation",
+    "user_input": "低GI午餐，推荐两家，先列评估标准再给店名。",
+    "agent_response": {
+      "recommended_restaurants": [
+        {"name": "Low GI Grill", "rating": 4.2, "price": "$$", "distance_km": 1.2, "is_veg": false, "cuisine": "Grill", "dishes": [{"name": "Grilled Chicken + Veg", "calories": 520, "is_healthy": true}]},
+        {"name": "Slow Carb Cafe", "rating": 4.0, "price": "$$", "distance_km": 1.0, "is_veg": true, "cuisine": "Cafe", "dishes": [{"name": "Lentil Bowl", "calories": 480, "is_healthy": true}]}
+      ],
+      "total_count": 4,
+      "average_rating": 4.1,
+      "cuisine_tags": ["Low GI", "Healthy"]
+    }
+  },
+  {
+    "id": 93,
+    "intent": "chitchat",
+    "user_input": "今天想吃点有嚼劲的，给一个不太油的思路。",
+    "agent_response": {
+      "final_response": "全麦卷饼夹鸡胸肉或豆腐，口感丰富且更清爽。"
+    }
+  },
+  {
+    "id": 94,
+    "intent": "goalplanning",
+    "user_input": "三周训练配餐目标，列蛋白与水化建议。",
+    "agent_response": {
+      "goals": {"type": "train_support", "timeframe_weeks": 3},
+      "next_steps": ["每餐优质蛋白25-30g", "训练后补充蛋白与水", "每日饮水2升以上"]
+    }
+  },
+  {
+    "id": 95,
+    "intent": "recognition",
+    "user_input": "识别一份咖喱饭，给出能量与脂肪简述。",
+    "agent_response": {
+      "detected_foods": [
+        {"name": "Curry Rice", "calories": 680, "protein_g": 18, "carb_g": 95, "fat_g": 22}
+      ],
+      "macro_totals": {"protein_g": 18, "carb_g": 95, "fat_g": 22, "total_kcal": 680},
+      "risky_nutrients": {"sodium_mg": 980, "sugar_g": 9}
+    }
+  },
+  {
+    "id": 96,
+    "intent": "recommendation",
+    "user_input": "请推荐两家地中海风味且较健康的餐厅。",
+    "agent_response": {
+      "recommended_restaurants": [
+        {"name": "Med Lite", "rating": 4.3, "price": "$$", "distance_km": 2.0, "is_veg": false, "cuisine": "Mediterranean", "dishes": [{"name": "Grilled Chicken Pita", "calories": 480, "is_healthy": true}]},
+        {"name": "Olive Garden Lite", "rating": 4.1, "price": "$$", "distance_km": 2.5, "is_veg": false, "cuisine": "Mediterranean", "dishes": [{"name": "Hummus Plate", "calories": 360, "is_healthy": true}]}
+      ],
+      "total_count": 5,
+      "average_rating": 4.2,
+      "cuisine_tags": ["Mediterranean", "Healthy"]
+    }
+  },
+  {
+    "id": 97,
+    "intent": "chitchat",
+    "user_input": "今天心情不错，来个有趣又健康的小零食点子。",
+    "agent_response": {
+      "final_response": "苹果蘸花生酱或黄瓜条配鹰嘴豆泥，既有趣又营养。"
+    }
+  },
+  {
+    "id": 98,
+    "intent": "goalplanning",
+    "user_input": "制定两周控脂计划，列烹饪方式与替代油脂。",
+    "agent_response": {
+      "goals": {"type": "fat_control", "timeframe_weeks": 2},
+      "next_steps": ["多用蒸煮烤焯", "用橄榄油替代黄油", "减少外卖炸物"]
+    }
+  },
+  {
+    "id": 99,
+    "intent": "recognition",
+    "user_input": "识别一份沙威玛卷，给健康小建议并估算热量。",
+    "agent_response": {
+      "detected_foods": [
+        {"name": "Shawarma Wrap", "calories": 520, "protein_g": 26, "carb_g": 52, "fat_g": 22}
+      ],
+      "macro_totals": {"protein_g": 26, "carb_g": 52, "fat_g": 22, "total_kcal": 520},
+      "risky_nutrients": {"sodium_mg": 880, "sugar_g": 7}
+    }
+  },
+  {
+    "id": 100,
+    "intent": "recommendation",
+    "user_input": "朋友聚会又要吃得相对健康，给两家容易拼单的店。",
+    "agent_response": {
+      "recommended_restaurants": [
+        {"name": "Share Bowl", "rating": 4.2, "price": "$$", "distance_km": 1.4, "is_veg": false, "cuisine": "Bowls", "dishes": [{"name": "Family Quinoa Platter", "calories": 1200, "is_healthy": true}]},
+        {"name": "Tapas Lite", "rating": 4.1, "price": "$$", "distance_km": 2.0, "is_veg": false, "cuisine": "Tapas", "dishes": [{"name": "Veg Tapas Set", "calories": 800, "is_healthy": true}]}
+      ],
+      "total_count": 4,
+      "average_rating": 4.15,
+      "cuisine_tags": ["Shared", "Healthy"]
+    }
+  },
+  {
+    "id": 101,
+    "intent": "recognition",
+    "user_input": "识别高盐高糖午餐，给健康评分、卡路里环与风险提示。",
+    "agent_response": {
+      "detected_foods": [
+        {"name": "Fried Noodles", "calories": 720, "protein_g": 20, "carb_g": 95, "fat_g": 26},
+        {"name": "Sweetened Iced Tea", "calories": 180, "protein_g": 0, "carb_g": 45, "fat_g": 0}
+      ],
+      "macro_totals": {"protein_g": 20, "carb_g": 140, "fat_g": 26, "total_kcal": 900},
+      "risky_nutrients": {"sodium_mg": 2300, "sugar_g": 85},
+      "daily_target_kcal": 2000,
+      "consumed_kcal": 900,
+      "health_score": 58
+    }
+  },
+  {
+    "id": 102,
+    "intent": "recommendation",
+    "user_input": "工作日健康午餐选项，展示排行与热量对比。",
+    "agent_response": {
+      "recommended_restaurants": [
+        {"name": "Grill Lite", "rating": 4.4, "price": "$$", "distance_km": 0.9, "is_veg": false, "cuisine": "Grill", "dishes": [{"name": "Chicken Veg Plate", "calories": 520, "is_healthy": true}]},
+        {"name": "Veg Corner", "rating": 4.3, "price": "$$", "distance_km": 0.6, "is_veg": true, "cuisine": "Vegetarian", "dishes": [{"name": "Tofu Quinoa Bowl", "calories": 460, "is_healthy": true}]},
+        {"name": "Soup & Grain", "rating": 4.1, "price": "$", "distance_km": 0.7, "is_veg": true, "cuisine": "Soup", "dishes": [{"name": "Lentil Soup", "calories": 220, "is_healthy": true}]},
+        {"name": "Wrap Bar", "rating": 4.0, "price": "$", "distance_km": 1.4, "is_veg": false, "cuisine": "Wraps", "dishes": [{"name": "Turkey Wrap", "calories": 480, "is_healthy": true}]},
+        {"name": "Rice & Bowl", "rating": 3.9, "price": "$", "distance_km": 1.8, "is_veg": false, "cuisine": "Bowls", "dishes": [{"name": "Beef Rice Bowl", "calories": 680, "is_healthy": false}]}
+      ],
+      "total_count": 12,
+      "average_rating": 4.14,
+      "cuisine_tags": ["Grill", "Vegetarian", "Soup", "Wraps", "Bowls"]
+    }
+  },
+  {
+    "id": 103,
+    "intent": "goalplanning",
+    "user_input": "四周控糖控热量目标，显示进度条。",
+    "agent_response": {
+      "goals": {"type": "calorie_sugar_control", "timeframe_weeks": 4},
+      "daily_target_kcal": 1800,
+      "calories_consumed_kcal": 1350,
+      "sugar_limit_g": 30,
+      "sugar_today_g": 22,
+      "next_steps": ["饮料尽量选无糖", "主食选择全谷物", "餐后步行15分钟"]
+    }
+  },
+  {
+    "id": 104,
+    "intent": "recognition",
+    "user_input": "识别这杯酸奶，输出营养成分表与每日占比提示。",
+    "agent_response": {
+      "nutrition_label": {
+        "name": "Greek Yogurt (Plain)",
+        "serving_size": "1 cup (245g)",
+        "calories": 150,
+        "fat_g": 3.8,
+        "sat_fat_g": 2.1,
+        "sodium_mg": 65,
+        "carb_g": 10,
+        "sugar_g": 5,
+        "fiber_g": 0,
+        "protein_g": 15
+      }
+    }
+  },
+  {
+    "id": 105,
+    "intent": "recognition",
+    "user_input": [{"role": "user", "text": "Identify a light dinner and give a quick tip."}],
+    "agent_response": {
+      "detected_foods": [
+        {"name": "Tomato Soup", "calories": 160, "protein_g": 4, "carb_g": 28, "fat_g": 3},
+        {"name": "Whole Grain Bread", "calories": 110, "protein_g": 4, "carb_g": 20, "fat_g": 1.5}
+      ],
+      "macro_totals": {"protein_g": 8, "carb_g": 48, "fat_g": 4.5, "total_kcal": 270},
+      "risky_nutrients": {"sodium_mg": 520, "sugar_g": 7}
+    }
+  },
+  {
+    "id": 106,
+    "intent": "chitchat",
+    "user_input": "给一句鼓励的话，文本较长以测试换行与溢出处理。",
+    "agent_response": {
+      "final_response": "坚持是改变的关键。即便今天不完美，也比昨天更接近目标。为自己准备一份颜色丰富的餐盘，多一些蔬菜和优质蛋白，少一点油盐糖；喝一杯水，做几次深呼吸；小步快跑也能抵达终点。"
+    }
+  },
+  {
+    "id": 107,
+    "intent": "recognition",
+    "user_input": "识别两道菜，仅用条形图对比热量，不给宏量总计。",
+    "agent_response": {
+      "detected_foods": [
+        {"name": "Chicken Caesar Salad", "calories": 420, "protein_g": 28, "carb_g": 18, "fat_g": 24},
+        {"name": "Veggie Soup", "calories": 120, "protein_g": 4, "carb_g": 16, "fat_g": 3}
+      ],
+      "risky_nutrients": {"sodium_mg": 780, "sugar_g": 8}
+    }
+  },
+  {
+    "id": 108,
+    "intent": "recommendation",
+    "user_input": "带有多语言与表情符号的餐厅数据，测试编码与渲染。",
+    "agent_response": {
+      "recommended_restaurants": [
+        {"name": "寿司屋 Sushi 🍣", "rating": 4.2, "price": "$$", "distance_km": 1.3, "is_veg": false, "cuisine": "Japanese", "dishes": [{"name": "Salmon Nigiri", "calories": 60, "is_healthy": true}]},
+        {"name": "Café Verde ☕", "rating": 4.0, "price": "$", "distance_km": 0.5, "is_veg": true, "cuisine": "Cafe", "dishes": [{"name": "Avocado Toast 🥑", "calories": 320, "is_healthy": true}]}
+      ],
+      "total_count": 2,
+      "average_rating": 4.1,
+      "cuisine_tags": ["Japanese", "Cafe", "Emoji"]
+    }
+  },
+  {
+    "id": 109,
+    "intent": "recognition",
+    "user_input": "识别一份清爽午餐，包含零值边界与单位测试。",
+    "agent_response": {
+      "detected_foods": [
+        {"name": "Cucumber Salad", "calories": 45, "protein_g": 1.5, "carb_g": 8, "fat_g": 0},
+        {"name": "Sparkling Water", "calories": 0, "protein_g": 0, "carb_g": 0, "fat_g": 0}
+      ],
+      "macro_totals": {"protein_g": 1.5, "carb_g": 8, "fat_g": 0, "total_kcal": 45},
+      "risky_nutrients": {"sodium_mg": 0, "sugar_g": 0}
+    }
+  },
+  {
+    "id": 110,
+    "intent": "recognition",
+    "user_input": "饱和脂肪与钠同时较高，测试多个风险营养素仪表。",
+    "agent_response": {
+      "detected_foods": [
+        {"name": "Creamy Pasta", "calories": 680, "protein_g": 18, "carb_g": 90, "fat_g": 26}
+      ],
+      "macro_totals": {"protein_g": 18, "carb_g": 90, "fat_g": 26, "total_kcal": 680},
+      "risky_nutrients": {"sodium_mg": 1500, "sugar_g": 8, "sat_fat_g": 12}
+    }
+  }
+]
